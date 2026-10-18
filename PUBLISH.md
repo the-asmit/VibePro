@@ -14,7 +14,7 @@ npx https://vibepro-audit.vercel.app/cli.tgz install --agent codex
 
 `.github/workflows/release.yml` runs on relevant changes to `main`, or through a manual Actions run. It checks the CLI and viewer, verifies the production signed manifest, packages the CLI, and creates a GitHub Release containing the `.tgz` and `SHA256SUMS.txt`. It uses GitHub's token scoped to this repository; no personal token is stored.
 
-Before changing CLI bytes, bump the CLI version. The workflow refuses to overwrite an existing release. Restore production public trust roots with `npm run release:prepare` before committing if you used local DEV setup.
+Before changing CLI bytes, bump the CLI version. The workflow refuses to overwrite an existing release. Local DEV keys stay in ignored files and do not change production trust roots. `npm run release:prepare` is available for intentional production-key maintenance using the existing backup.
 
 ## Publish to npm for the short npx command
 

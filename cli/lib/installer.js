@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { verifySignedManifest } from './signed-manifest.js';
+import { fingerprintForKey, verifySignedManifest } from './signed-manifest.js';
 import { DEFAULT_API_URL } from './config.js';
 
 const docs = {
@@ -90,10 +90,27 @@ async function getJson(url) {
   return response.json();
 }
 
+async function developmentVerificationOptions(base) {
+  // Only this source checkout talking to loopback may use its ignored DEV key.
+  // Public APIs and distributed packages always use the production trust root.
+  if (!['localhost', '127.0.0.1', '[::1]'].includes(new URL(base).hostname)) return {};
+  if (process.env.NODE_ENV === 'test' && process.env.VIBEPRO_TEST_PUBLIC_KEY) return {};
+  const root = new URL('../../', import.meta.url);
+  try {
+    const project = JSON.parse(await fs.readFile(new URL('package.json', root), 'utf8'));
+    if (project.private !== true || project.name !== 'vibepro-project'
+        || !(await fs.stat(new URL('backend/app.py', root))).isFile()) return {};
+  } catch { return {}; }
+  let publicKeyPem;
+  try { publicKeyPem = await fs.readFile(new URL('backend/keys/public_key.pem', root), 'utf8'); }
+  catch (error) { if (error.code === 'ENOENT') return {}; throw error; }
+  return { publicKeyPem, keyId: fingerprintForKey(publicKeyPem) };
+}
+
 export async function fetchVerifiedManifest(base, version) {
   const suffix = version ? `?version=${encodeURIComponent(version)}` : '';
   const envelope = await getJson(`${base}/api/v1/manifest/signed${suffix}`);
-  return verifySignedManifest(envelope);
+  return verifySignedManifest(envelope, await developmentVerificationOptions(base));
 }
 
 async function sendTelemetry(base, event, agent, version, env = process.env) {

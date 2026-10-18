@@ -92,7 +92,18 @@ async function localKey({ create = true, directory = path.join(root, 'backend/ke
   return { privatePem, publicPem, keyId: fingerprintForKey(publicPem), directory };
 }
 
-async function syncPublicKey(key) {
+async function configureDevelopmentKey(key) {
+  const configuration = JSON.stringify({ publicKeyPem: key.publicPem }, null, 2) + '\n';
+  for (const [file, value] of [
+    [path.join(root, 'backend/keys/public_key.pem'), key.publicPem],
+    [path.join(root, 'web/.vibepro-dev.json'), configuration],
+  ]) {
+    await fs.mkdir(path.dirname(file), { recursive: true });
+    if (await fs.readFile(file, 'utf8').catch(() => '') !== value) await fs.writeFile(file, value);
+  }
+}
+
+async function syncProductionPublicKey(key) {
   const webPath = path.join(root, 'web/app.js');
   const web = await fs.readFile(webPath, 'utf8');
   const start = web.indexOf('const publicKeyPem =');
@@ -104,7 +115,8 @@ async function syncPublicKey(key) {
     + `export const TRUSTED_KEY_ID = '${key.keyId}';\n`
     + 'export const TRUSTED_PUBLIC_KEY_PEM = `' + key.publicPem + '`;\n';
   for (const [file, value] of [[webPath, updatedWeb], [cliPath, updatedCli], [path.join(key.directory, 'public_key.pem'), key.publicPem]]) {
-    if (await fs.readFile(file, 'utf8').catch(() => '') !== value) await fs.writeFile(file, value);
+    const current = await fs.readFile(file, 'utf8').catch(() => '');
+    if (current.replaceAll('\r\n', '\n') !== value.replaceAll('\r\n', '\n')) await fs.writeFile(file, value);
   }
 }
 
@@ -159,14 +171,14 @@ async function serve(port, open) {
     const key = await localKey({ create: false });
     try { await verifyServer(api, key); }
     catch { throw new Error(`Port ${port} is occupied or uses another signing key. Try npm start -- --port 8012. The existing process was left running.`); }
-    await syncPublicKey(key);
+    await configureDevelopmentKey(key);
     console.log('VibePro is already running; reusing it.');
     showUrls(api, port, open);
     return 0;
   }
   await ensureSetup();
   const key = await localKey();
-  await syncPublicKey(key);
+  await configureDevelopmentKey(key);
   const child = spawn(python, [
     '-m', 'uvicorn', 'app:app', '--app-dir', path.join(root, 'backend'),
     '--host', '127.0.0.1', '--port', String(port),
@@ -237,7 +249,7 @@ async function main() {
       throw new Error('Restore your production signing-key backup into backend/keys/production/ first. A new key would not match the deployed API.');
     }
     const key = await localKey({ create: false, directory });
-    await syncPublicKey(key);
+    await syncProductionPublicKey(key);
     console.log('Production public keys synchronized. Private key stays in ignored backend/keys/production/.');
     console.log('Public fingerprint: ' + key.keyId);
     return 0;

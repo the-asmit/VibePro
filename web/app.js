@@ -48,6 +48,19 @@ async function request(url) {
   if (!response.ok) throw new Error("HTTP " + response.status);
   return response;
 }
+async function verificationPublicKey() {
+  if (!localDemo) return publicKeyPem;
+  const response = await fetch('/.vibepro-dev.json', {
+    cache: 'no-store',
+    redirect: 'error',
+    signal: AbortSignal.timeout(10000),
+  });
+  if (response.status === 404) return publicKeyPem;
+  if (!response.ok) throw new Error('Local verification configuration is unavailable');
+  const configuration = await response.json();
+  if (typeof configuration.publicKeyPem !== 'string') throw new Error('Invalid local verification configuration');
+  return configuration.publicKeyPem;
+}
 function feedback(message) {
   const toast = $("#global-feedback");
   toast.textContent = message;
@@ -83,7 +96,7 @@ async function loadManifest() {
     const envelope = await (
       await request("/api/v1/manifest/signed?version=latest")
     ).json();
-    const body = publicKeyPem
+    const body = (await verificationPublicKey())
       .replace(/-----[^-]+-----/g, "")
       .replace(/\s+/g, "");
     const keyBytes = Uint8Array.from(atob(body), (c) => c.charCodeAt(0));

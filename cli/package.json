@@ -1,6 +1,6 @@
 {
   "name": "vibepro-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Securely install the VibePro security audit skill into AI coding agents",
   "type": "module",
   "bin": { "vibepro": "bin/vibepro.js" },

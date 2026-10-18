@@ -7,6 +7,7 @@ skills-lock.json
 **/__pycache__/
 **/.pytest_cache/
 backend/keys/
+web/.vibepro-dev.json
 backend/tests/
 engine/vibepro-audit/
 artifacts/

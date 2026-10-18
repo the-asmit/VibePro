@@ -6,6 +6,7 @@ __pycache__/
 node_modules/
 .upstream-security-audit/
 backend/keys/
+/web/.vibepro-dev.json
 *.pem
 *.log
 .env

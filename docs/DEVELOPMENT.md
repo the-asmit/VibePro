@@ -19,7 +19,7 @@ npm install
 npm start
 ```
 
-The install command links the CLI workspace and prepares an isolated `.venv/` with backend dependencies. Startup reuses or creates a local DEV signing key and synchronizes its public key into the website and CLI.
+The install command links the CLI workspace and prepares an isolated `.venv/` with backend dependencies. Startup reuses or creates a local DEV signing key. Its public key is stored in ignored files, so starting the server does not modify tracked source.
 
 - Website: <http://127.0.0.1:8011/>
 - Sample report: <http://127.0.0.1:8011/report.html?sample=1>
@@ -115,6 +115,8 @@ GitHub Actions runs backend, CLI, package, and end-to-end checks on Windows, mac
 
 See [DEPLOY.md](../DEPLOY.md) for hosting and update procedures, and [PUBLISH.md](../PUBLISH.md) for CLI releases.
 
-Local startup synchronizes the DEV public key into two tracked files. Before committing production code, run `npm run release:prepare` with the existing ignored production-key backup. This restores the production public trust roots. Private keys, environment files, local databases, dependencies, and caches must remain outside Git.
+Local development uses `backend/keys/public_key.pem` and `web/.vibepro-dev.json`, both ignored by Git. The generated web configuration is also excluded from Docker and Vercel uploads. The source CLI reads its local key only for loopback APIs; the website reads its local configuration only on loopback hosts. Production public keys remain pinned in tracked source.
+
+Normal local development needs no key-reset step before committing. `git add .` skips these ignored files. Use `npm run release:prepare` only when intentionally synchronizing production public trust roots from the existing production-key backup. Private keys, environment files, local databases, dependencies, and caches must remain outside Git.
 
 The root npm package is private. The distributable CLI is a separate workspace with no Python dependency or install lifecycle scripts.

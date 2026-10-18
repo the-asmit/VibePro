@@ -4,6 +4,7 @@
 **/__pycache__
 **/.pytest_cache
 backend/keys
+web/.vibepro-dev.json
 backend/tests
 backend/scripts
 backend/requirements-dev.txt

@@ -44,13 +44,13 @@ The API uses the existing SQLAlchemy models with psycopg and Neon's pooled conne
 ## Update this deployment
 
 1. Make and review changes in this repository.
-2. If you ran the local server, restore the production public trust roots before committing:
+2. Review the changes. Local development keeps its DEV keys in ignored files and does not modify production public trust roots. If intentionally updating production trust roots from the existing signing-key backup, use:
 
    ```sh
    npm run release:prepare
    ```
 
-   This requires the existing ignored production-key backup. It updates public keys only and never prints the private value.
+   This optional maintenance command requires the existing ignored production-key backup. It updates public keys only and never prints the private value. Routine local startup does not require it.
 
 3. Commit and push to **`the-asmit/VibePro` only**. For CLI changes, bump `cli/package.json` before publishing new package bytes; existing GitHub Release versions are not overwritten.
 4. Monitor the automatic deployment in the Vercel project dashboard. For a manual deployment, link explicitly to this project if the checkout is not already linked:

@@ -69,4 +69,4 @@ The first deployment exposed a missing Python dependency installation step. Remo
 
 ## Owner workflow
 
-Use [DEPLOY.md](../DEPLOY.md) for updates and [PUBLISH.md](../PUBLISH.md) for CLI releases. Local development synchronizes the DEV public key into two tracked files; run `npm run release:prepare` before committing production code. Keep the existing production private-key backup secure.
+Use [DEPLOY.md](../DEPLOY.md) for updates and [PUBLISH.md](../PUBLISH.md) for CLI releases. Local development stores its verification keys in ignored files and leaves production public trust roots unchanged. Use `npm run release:prepare` for intentional production-key maintenance. Keep the existing production private-key backup secure.

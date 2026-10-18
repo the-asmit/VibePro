@@ -56,18 +56,38 @@ def sync_public_key(public_pem: str, key_id: str, root: Path = ROOT) -> None:
             path.write_text(updated, encoding='utf-8')
 
 
+def sync_development_key(public_pem: str, root: Path = ROOT) -> None:
+    configuration = json.dumps({"publicKeyPem": public_pem}, indent=2) + '\n'
+    for path, value in [
+        (root / 'backend/keys/public_key.pem', public_pem),
+        (root / 'web/.vibepro-dev.json', configuration),
+    ]:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if not path.exists() or path.read_text(encoding='utf-8') != value:
+            path.write_text(value, encoding='utf-8')
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'backend/keys')
-    parser.add_argument('--sync-public-key', action='store_true', help='Update the CLI and website public trust roots.')
+    parser.add_argument('--sync-public-key', action='store_true', help='Configure ignored localhost public-key files without changing tracked source.')
+    parser.add_argument('--production', action='store_true', help='With --sync-public-key, explicitly update tracked production trust roots instead.')
     parser.add_argument('--show-secret', action='store_true', help='Print the private-key environment value for manual deployment configuration.')
     args = parser.parse_args()
+    if args.production and not args.sync_public_key:
+        parser.error('--production requires --sync-public-key')
     private_pem, public_pem, key_id = ensure_keypair(args.output_dir.resolve())
     if args.sync_public_key:
-        sync_public_key(public_pem, key_id)
+        if args.production:
+            sync_public_key(public_pem, key_id)
+        else:
+            sync_development_key(public_pem)
     print(f'Keypair ready in {args.output_dir.resolve()} (existing private keys are reused).')
     print(f'Public fingerprint: {key_id}')
-    print('CLI and website public keys synchronized.' if args.sync_public_key else 'Use --sync-public-key to update the CLI and website trust roots.')
+    if args.sync_public_key:
+        print('Production trust roots synchronized.' if args.production else 'Ignored localhost verification files configured; tracked source is unchanged.')
+    else:
+        print('Use --sync-public-key to configure localhost verification without changing tracked source.')
     if args.show_secret:
         print('Private deployment secret; never commit or share this value:')
         print('VIBEPRO_SIGNING_KEY=base64:' + base64.b64encode(private_pem).decode('ascii'))
