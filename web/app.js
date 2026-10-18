@@ -8,7 +8,7 @@ const localApi =
   localDemo && location.port && location.port !== "8011"
     ? " --api " + location.origin
     : "";
-const installer = localDemo ? "npx vibepro-cli" : "npx " + location.origin + "/cli.tgz";
+const installer = localDemo ? "npx vibepro-cli" : "npx https://vibepro-audit.vercel.app/cli.tgz";
 const command = installer + " install" + localApi;
 $(".hero-command code").textContent = command;
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");

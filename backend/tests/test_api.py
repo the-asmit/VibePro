@@ -112,6 +112,18 @@ def test_health_versions_and_static_site(tmp_path):
         assert "max-age=31536000" in headers["strict-transport-security"]
 
 
+def test_cli_download_redirects_to_the_versioned_github_release(tmp_path):
+    package = Path(__file__).resolve().parents[2] / 'cli/package.json'
+    version = json.loads(package.read_text(encoding='utf-8'))['version']
+    with make_client(tmp_path) as client:
+        response = client.get('/cli.tgz', follow_redirects=False)
+        assert response.status_code == 307
+        assert response.headers['location'] == (
+            f'https://github.com/the-asmit/VibePro/releases/download/v{version}/vibepro-cli-{version}.tgz'
+        )
+        assert response.headers['cache-control'] == 'no-cache'
+
+
 def test_events_are_anonymous_and_aggregated(tmp_path):
     with make_client(tmp_path) as client:
         for event, agent, os_name in [("install", "codex", "win32"), ("update", "codex", "win32"), ("install", "cursor", "darwin")]:

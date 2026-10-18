@@ -1,57 +1,47 @@
-# vibepro-cli
+# VibePro CLI
 
-Install, update, verify, and uninstall the VibePro audit skill for supported coding agents. The CLI verifies an Ed25519-signed manifest and each downloaded file's SHA-256 digest before it writes anything. It has no install or postinstall lifecycle scripts.
+Install, update, verify, and uninstall VibePro for your AI coding agent. The installer verifies an Ed25519-signed manifest and each engine file's SHA-256 and size before installation.
 
-## Local source use before publication
+## Install
 
-From the VibePro repository root:
-
-```sh
-npm install
-npm start
-```
-
-In a second terminal:
+Requires Node.js 18 or later. Windows, macOS, and Linux are supported.
 
 ```sh
-npx vibepro-cli install --agent codex
-npx vibepro-cli verify --agent codex
-npx vibepro-cli doctor
+npx https://vibepro-audit.vercel.app/cli.tgz install --agent codex
 ```
 
-The private root package automatically prepares the Python backend and links the CLI for npx. In this checkout, the CLI defaults to the loopback API on port 8011 when no API is configured. Python 3.12 or later must be installed to host the API locally; the published CLI itself requires only Node.js. See the repository README for the complete walkthrough.
+The download redirects to this project's versioned [GitHub Release](https://github.com/the-asmit/VibePro/releases). The public CLI requires no Python installation or local backend.
 
-## Public quick start (after deployment and npm publication)
+Supported agents: `codex`, `claude`, `cursor`, `antigravity`, and `gemini`. Omit `--agent` to detect supported agents. Add `--project` to install for the current repository, or `--dry-run` to preview the destination.
+
+After installation, open your project in the coding agent and ask it to audit the project with VibePro. The agent uses its existing model access and tools to perform the review.
+
+## Commands
 
 ```sh
-npx vibepro-cli install
+npx https://vibepro-audit.vercel.app/cli.tgz update --agent codex
+npx https://vibepro-audit.vercel.app/cli.tgz verify --agent codex
+npx https://vibepro-audit.vercel.app/cli.tgz doctor
+npx https://vibepro-audit.vercel.app/cli.tgz report ./findings.json
+npx https://vibepro-audit.vercel.app/cli.tgz uninstall --agent codex
 ```
 
-The installer detects supported agents and installs into their user-level skill directory. Choose one explicitly with `--agent codex|claude|cursor|antigravity|gemini`. Use `--project` to install in the current repository instead of your home directory.
+Run `npx https://vibepro-audit.vercel.app/cli.tgz --help` for all options.
 
-```sh
-npx vibepro-cli install --agent codex
-npx vibepro-cli update --agent codex
-npx vibepro-cli verify
-npx vibepro-cli doctor
-npx vibepro-cli report ./security-audit-skill/my-project/run-1/findings.json
-npx vibepro-cli uninstall --agent codex
-```
+`verify` reports intact, modified, and missing files. `doctor` checks the runtime, API, signature, detected agents, and installed files. `report` validates the findings schema and opens a loopback viewer. Report data stays on your device.
 
-Run `npx vibepro-cli --help` for all options. `verify` compares installed files to the signed release and reports intact, modified, or missing files. `doctor` checks the runtime, API, signature, detected agents, and installed files. `report` validates `findings.json` against the bundled report schema, prints a summary, and opens a loopback-only viewer. Finding data stays on your machine.
+## Privacy
 
-## Anonymous telemetry
+Install, update, and uninstall commands send anonymous usage events by default. Events contain the event name, agent, engine version, and operating system. No username, repository name, audit output, or file content is stored in the event database. Disable events with `--no-telemetry` or `VIBEPRO_TELEMETRY=0`.
 
-Install, update, and uninstall events are sent by default. Events contain only the event name, agent, VibePro engine version, and operating system. No IP address, username, repository name, audit output, or file content is stored in the event database. Disable events with `--no-telemetry` on a command or `VIBEPRO_TELEMETRY=0` in your environment.
+The CLI has no install or postinstall lifecycle scripts.
 
-## API configuration
+## API and development
 
-The source checkout has no assumed public API URL. It uses `http://127.0.0.1:8011` locally when no API is configured. Pass `--api <URL>` or set `VIBEPRO_API` to override the origin (HTTP is allowed only on loopback). Before distributing a release, update the `DEFAULT_API_URL` constant in `lib/config.js` to the deployed HTTPS origin, then run the tests and package the CLI. See the repository's `DEPLOY.md` and `PUBLISH.md` for npm and GitHub release options.
+The public CLI connects to `https://vibepro-audit.vercel.app`. Use `--api <URL>` or `VIBEPRO_API` to select another API. HTTP is allowed only for loopback addresses.
 
-## Requirements
-
-Node.js 18 or later. Windows, macOS, and Linux are supported.
+For source-checkout commands and local DEV keys, see the [development guide](https://github.com/the-asmit/VibePro/blob/main/docs/DEVELOPMENT.md).
 
 ## License and credit
 
-VibePro CLI is MIT licensed. Its audit methodology is based on [Cloudflare's security-audit-skill](https://github.com/cloudflare/security-audit-skill), also MIT licensed; see the bundled `resources/LICENSE` and the repository `NOTICE`.
+VibePro CLI is MIT licensed. Its audit methodology is based on [Cloudflare's security-audit-skill](https://github.com/cloudflare/security-audit-skill), also MIT licensed. See the bundled `resources/LICENSE` and the repository [NOTICE](https://github.com/the-asmit/VibePro/blob/main/NOTICE).

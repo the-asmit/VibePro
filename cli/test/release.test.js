@@ -6,11 +6,22 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 import { openLocalReport, validateFindingsFile } from '../lib/report.js';
+import { DEFAULT_API_URL } from '../lib/config.js';
 
 const cliRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const packageJson = JSON.parse(await fs.readFile(path.join(cliRoot, 'package.json'), 'utf8'));
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const npmOptions = process.platform === 'win32' ? { shell: true } : {};
+
+test('public install examples use the canonical production distribution', async () => {
+  assert.equal(DEFAULT_API_URL, 'https://vibepro-audit.vercel.app');
+  const prefix = `npx ${DEFAULT_API_URL}/cli.tgz`;
+  for (const file of ['web/index.html', 'web/report.html', 'README.md', 'cli/README.md']) {
+    const source = await fs.readFile(path.join(cliRoot, '..', file), 'utf8');
+    assert.ok(source.includes(prefix), file);
+    assert.doesNotMatch(source, /npx vibepro-cli|vibepro-asmitnayan-8521\.vercel\.app|vibepro-eight\.vercel\.app/, file);
+  }
+});
 
 test('local report serves findings and bundled fonts over loopback', async t => {
   const raw = await fs.readFile(path.join(cliRoot, 'viewer', 'sample-findings.json'));
