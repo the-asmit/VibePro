@@ -1,0 +1,1 @@
+The audit methodology in engine/ is from Cloudflare's security-audit-skill (MIT License), https://github.com/cloudflare/security-audit-skill. Copyright (c) Cloudflare, Inc. VibePro's website, CLI, backend and verification layer are original work by Asmit Nayan and Arnav Singh.

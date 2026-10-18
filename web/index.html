@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#0c0d0f" />
+    <meta
+      name="description"
+      content="Give your coding agent a structured security review. Trace attack paths, challenge findings, and get fixes backed by evidence."
+    />
+    <title>VibePro — security for what you build</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="fonts/geist-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="fonts/jetbrains-mono-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="responsive.css" />
+    <script defer src="app.js?v=npx-20261018"></script>
+    <script defer src="motion.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#method">Skip to content</a>
+    <header class="topbar">
+      <div class="nav-shell">
+        <a class="wordmark" href="#top" aria-label="VibePro home"
+          ><span class="mark" aria-hidden="true">V/</span>VibePro</a
+        >
+        <nav id="main-menu" aria-label="Main navigation">
+          <a href="#method">How it works</a
+          ><a href="#verify">Verify a release</a
+          ><a href="/report.html">Reports</a>
+        </nav>
+        <div class="nav-actions">
+          <a class="top-cta" href="#get-started"
+            >Install VibePro <span aria-hidden="true">↗</span></a
+          ><button
+            class="menu-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="main-menu"
+            aria-label="Open navigation"
+          >
+            <span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </header>
+    <main id="top">
+      <section class="hero wrap" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span></span> FOR YOUR AI CODING WORKFLOW</p>
+          <h1 id="hero-title">
+            Security for<br /><span>what you build.</span>
+          </h1>
+          <p class="hero-lede">
+            Give your coding agent a structured security review. Trace attack
+            paths, challenge findings, and get fixes backed by evidence.
+          </p>
+          <div class="hero-actions">
+            <a class="action-button" href="#get-started"
+              >Install VibePro <span aria-hidden="true">↗</span></a
+            ><a class="secondary-link" href="/report.html?sample=1"
+              >Explore a report <span aria-hidden="true">→</span></a
+            >
+          </div>
+          <div class="hero-command">
+            <code>npx vibepro-cli install</code
+            ><button
+              id="copy-command"
+              type="button"
+              aria-label="Copy install command"
+            >
+              Copy
+            </button>
+          </div>
+          <span id="copy-feedback" class="sr-only" role="status"></span>
+          <p id="engine-live" class="engine-live" role="status">
+            Checking the signed release…
+          </p>
+        </div>
+        <div class="hero-visual">
+          <div class="core-stage">
+            <div class="core-fallback" aria-hidden="true">
+              <i></i><i></i><i></i>
+            </div>
+            <canvas id="security-core" aria-hidden="true"></canvas
+            ><button id="motion-toggle" type="button" aria-pressed="false">
+              Pause animation <span aria-hidden="true">Ⅱ</span>
+            </button>
+            <div class="core-callout">
+              <span class="callout-symbol" aria-hidden="true">↳</span>
+              <div>Follow the code.<br /><span>Find the exposure.</span></div>
+            </div>
+            <div class="core-caption">
+              <span></span> A closer look at every layer
+            </div>
+          </div>
+        </div>
+        <div class="agent-support">
+          <p>Works with the agent you already use</p>
+          <div>
+            <span>Codex</span><span>Claude Code</span><span>Cursor</span
+            ><span>Antigravity</span><span>Gemini CLI</span>
+          </div>
+        </div>
+      </section>
+      <section class="product-intro wrap" id="why" aria-labelledby="why-title">
+        <div class="intro-heading">
+          <p class="eyebrow">A REVIEW YOU CAN FOLLOW</p>
+          <h2 id="why-title">
+            Know what needs fixing.<br /><span>And why it matters.</span>
+          </h2>
+        </div>
+        <div class="intro-body">
+          <p>
+            VibePro follows a finding from the first suspicious line to the
+            evidence behind it. Independent review challenges the claim before
+            it reaches your report.
+          </p>
+          <div class="benefit-pair">
+            <div>
+              <b>Evidence with every finding</b>
+              <p>Source locations, conditions, impact, and a specific fix.</p>
+            </div>
+            <div>
+              <b>Uncertainty stays visible</b>
+              <p>Confirmed issues, open questions, and rejected claims.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section
+        class="method-section wrap"
+        id="method"
+        aria-labelledby="method-title"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">FROM CODE TO A CLEAR ANSWER</p>
+            <h2 id="method-title">A finding has to<br />stand up to review.</h2>
+          </div>
+          <p>
+            Explore the six passes behind an audit. Each one sharpens the
+            question, tests the claim, or makes the result easier to act on.
+          </p>
+        </div>
+        <div class="method-workspace">
+          <div class="story-chapters">
+            <article class="story-chapter is-current" data-stage="0">
+              <button
+                type="button"
+                class="chapter-focus"
+                aria-pressed="true"
+                aria-controls="evidence-panel"
+              >
+                <small>01</small>Map
+              </button>
+              <h3>Map the application</h3>
+              <p>
+                Find the entry points, sensitive data, and trust boundaries.
+              </p>
+            </article>
+            <article class="story-chapter" data-stage="1">
+              <button
+                type="button"
+                class="chapter-focus"
+                aria-pressed="false"
+                aria-controls="evidence-panel"
+              >
+                <small>02</small>Trace
+              </button>
+              <h3>Follow an attack path</h3>
+              <p>Connect controlled input to a concrete effect in the code.</p>
+            </article>
+            <article class="story-chapter" data-stage="2">
+              <button
+                type="button"
+                class="chapter-focus"
+                aria-pressed="false"
+                aria-controls="evidence-panel"
+              >
+                <small>03</small>Challenge
+              </button>
+              <h3>Try to disprove it</h3>
+              <p>Look for the checks that could invalidate the candidate.</p>
+            </article>
+            <article class="story-chapter" data-stage="3">
+              <button
+                type="button"
+                class="chapter-focus"
+                aria-pressed="false"
+                aria-controls="evidence-panel"
+              >
+                <small>04</small>Record
+              </button>
+              <h3>Keep the evidence</h3>
+              <p>
+                Record source locations, conditions, and reproduction steps.
+              </p>
+            </article>
+            <article class="story-chapter" data-stage="4">
+              <button
+                type="button"
+                class="chapter-focus"
+                aria-pressed="false"
+                aria-controls="evidence-panel"
+              >
+                <small>05</small>Review
+              </button>
+              <h3>Get a separate review</h3>
+              <p>
+                An independent agent checks the evidence and can reject the
+                claim.
+              </p>
+            </article>
+            <article class="story-chapter" data-stage="5">
+              <button
+                type="button"
+                class="chapter-focus"
+                aria-pressed="false"
+                aria-controls="evidence-panel"
+              >
+                <small>06</small>Report
+              </button>
+              <h3>Explain what remains</h3>
+              <p>
+                Keep confirmed issues, open questions, and rejected claims
+                visible.
+              </p>
+            </article>
+          </div>
+          <div
+            class="evidence-board"
+            id="evidence-panel"
+            data-current-stage="0"
+          >
+            <div class="surface-head">
+              <span>Example audit</span><span>Illustrative example</span>
+            </div>
+            <div
+              class="evidence-progress"
+              role="img"
+              aria-label="Six audit passes"
+            >
+              <span></span><span></span><span></span><span></span><span></span
+              ><span></span>
+            </div>
+            <p id="evidence-stage">Reconnaissance</p>
+            <h3 id="evidence-title">Who can ask for this profile?</h3>
+            <div class="trace-map" aria-hidden="true">
+              <span>Request</span><i></i><span>Trust boundary</span><i></i
+              ><span>Evidence</span>
+            </div>
+            <pre
+              class="evidence-snippet"
+            ><code>GET /api/profile/another-user-id</code></pre>
+            <p id="evidence-observation">
+              Start with the route, the signed-in user, and the data the handler
+              returns.
+            </p>
+            <div class="evidence-verdict" id="evidence-verdict">
+              <span>QUESTION OPEN</span><b>Ownership check?</b>
+            </div>
+            <p id="evidence-reference">src/routes/profile.js:18 → :24</p>
+          </div>
+        </div>
+        <div class="method-footer">
+          <span>Try a pass to follow the evidence.</span
+          ><a class="secondary-link" href="/report.html?sample=1"
+            >Open the sample report <span aria-hidden="true">↗</span></a
+          >
+        </div>
+      </section>
+      <section
+        class="research-section"
+        id="research"
+        aria-labelledby="research-title"
+      >
+        <div class="research-layout wrap">
+          <div class="research-number">
+            <strong>45<span>%</span></strong>
+            <div class="risk-spectrum" aria-hidden="true"></div>
+            <p>Veracode / 2025</p>
+          </div>
+          <div class="research-copy">
+            <h2 id="research-title">
+              Working code can still<br />have security flaws.
+            </h2>
+            <p>
+              45% of AI-generated code failed security tests across all tasks in
+              Veracode’s research. A working feature still needs a security
+              review.
+            </p>
+            <details class="research-details">
+              <summary>
+                Read the research <span aria-hidden="true">+</span>
+              </summary>
+              <div>
+                <p>
+                  Failure rates reached <b>70%+ for Java</b>,
+                  <b>86% for cross-site scripting</b>, and
+                  <b>88% for log injection</b>.
+                </p>
+                <a
+                  href="https://www.veracode.com/press-release/ai-generated-code-poses-major-security-risks-in-nearly-half-of-all-development-tasks-veracode-research-reveals/"
+                  target="_blank"
+                  rel="noreferrer"
+                  >Veracode GenAI Code Security Report ↗</a
+                >
+                <p>
+                  In Stack Overflow’s 2025 survey, <b>84%</b> of developers use
+                  or plan to use AI tools (76% in 2024, up 8 points).
+                  <b>46%</b> don’t trust AI output accuracy (31% in 2024, up 15
+                  points).
+                </p>
+                <a
+                  href="https://stackoverflow.co/company/press/archive/stack-overflow-2025-developer-survey/"
+                  target="_blank"
+                  rel="noreferrer"
+                  >Stack Overflow Developer Survey 2025 ↗</a
+                >
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+      <section
+        class="start-section wrap"
+        id="get-started"
+        aria-labelledby="start-title"
+      >
+        <div class="start-opening">
+          <p class="eyebrow">START YOUR FIRST REVIEW</p>
+          <h2 id="start-title">Your agent.<br />A more thorough audit.</h2>
+          <p>
+            Choose your agent and run the command.<br />Then ask it to audit the
+            project you have open.
+          </p>
+        </div>
+        <div class="onboarding">
+          <div
+            class="agent-picker"
+            role="group"
+            aria-label="Choose your coding agent"
+          >
+            <button data-agent="codex" aria-pressed="true" class="is-active">
+              Codex</button
+            ><button data-agent="claude" aria-pressed="false">
+              Claude Code</button
+            ><button data-agent="cursor" aria-pressed="false">Cursor</button
+            ><button data-agent="antigravity" aria-pressed="false">
+              Antigravity</button
+            ><button data-agent="gemini" aria-pressed="false">
+              Gemini CLI
+            </button>
+          </div>
+          <div class="install-layout">
+            <div class="command-stage">
+              <div class="command-heading">
+                <span>Run in your terminal</span
+                ><label class="preview-toggle"
+                  ><input type="checkbox" id="preview-install" /> Preview
+                  first</label
+                >
+              </div>
+              <div class="selected-command">
+                <code id="agent-command"
+                  >npx vibepro-cli install --agent codex</code
+                ><button class="copy-trigger" type="button" data-copy-agent>
+                  Copy command
+                </button>
+              </div>
+              <div class="install-trace" aria-label="Installer checks">
+                <span>HTTPS download</span><b aria-hidden="true">→</b
+                ><span>Ed25519 signature</span><b aria-hidden="true">→</b
+                ><span>SHA-256 hashes</span><b aria-hidden="true">→</b
+                ><span>Atomic install</span>
+              </div>
+              <p class="install-small">
+                No install scripts. Use <code>--dry-run</code> to inspect the
+                destination before installing.
+              </p>
+            </div>
+            <div class="handoff">
+              <span class="handoff-mark" aria-hidden="true">↳</span>
+              <h3>Then ask your agent</h3>
+              <p class="prompt-text">“audit this project”</p>
+              <p>
+                Read the evidence and next steps in <code>REPORT.md</code> and
+                <code>findings.json</code>.
+              </p>
+              <a class="text-link" href="/report.html?sample=1"
+                >See a sample report <span aria-hidden="true">↗</span></a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+      <section
+        class="verify-section wrap"
+        id="verify"
+        aria-labelledby="release-title"
+      >
+        <div class="verify-heading">
+          <div class="verification-symbol" aria-hidden="true">
+            <span>✓</span>
+          </div>
+          <div>
+            <h2 id="release-title">Verified before it’s installed.</h2>
+            <p>
+              The installer checks the release signature and every file hash
+              before writing to your agent folder.
+            </p>
+          </div>
+          <a
+            class="secondary-link"
+            href="/api/v1/manifest/signed?version=latest"
+            target="_blank"
+            rel="noreferrer"
+            >Signed manifest ↗</a
+          >
+        </div>
+        <div class="release-workbench">
+          <div class="release-status">
+            <div>
+              <span class="status-indicator" aria-hidden="true"></span
+              ><span id="manifest-status" role="status"
+                >Checking signature…</span
+              >
+            </div>
+            <span>Current release <b id="manifest-version">…</b></span
+            ><span><b id="manifest-count">…</b> signed files</span
+            ><button
+              class="quiet-button"
+              id="retry-manifest"
+              type="button"
+              hidden
+            >
+              Try again ↻
+            </button>
+          </div>
+          <details class="release-inspection">
+            <summary>
+              Check a file yourself <span aria-hidden="true">+</span>
+            </summary>
+            <div class="hash-lab">
+              <div class="hash-explanation">
+                <span class="mini-label">Verify a file in this browser</span>
+                <h3>The bytes should match.</h3>
+                <p>
+                  Select a file from the live release. We download it and
+                  compute its hash locally, just as the installer does.
+                </p>
+                <label class="field-label" for="hash-file">Release file</label
+                ><select id="hash-file" disabled>
+                  <option>Loading file list…</option></select
+                ><button
+                  class="action-button"
+                  id="hash-run"
+                  disabled
+                  type="button"
+                >
+                  Verify this file <span aria-hidden="true">↗</span>
+                </button>
+              </div>
+              <div class="hash-visual">
+                <div class="hash-flow" aria-hidden="true">
+                  <span>FILE BYTES</span><i></i><span>SHA-256</span><i></i
+                  ><span class="hash-end">COMPARE</span>
+                </div>
+                <div
+                  class="byte-field"
+                  id="byte-field"
+                  aria-hidden="true"
+                ></div>
+                <div class="digest-block">
+                  <span>Signed manifest digest</span
+                  ><code id="expected-hash"
+                    >Waiting for a verified manifest</code
+                  >
+                </div>
+                <div class="digest-block">
+                  <span>Computed in your browser</span
+                  ><code id="computed-hash"
+                    >Choose a file, then run the check.</code
+                  >
+                </div>
+                <p id="hash-result" class="hash-result" role="status">
+                  No file checked yet.
+                </p>
+              </div>
+            </div>
+          </details>
+          <details class="manifest-details">
+            <summary>
+              Inspect all release files <span aria-hidden="true">+</span>
+            </summary>
+            <div
+              class="manifest-table"
+              id="manifest-files"
+              aria-label="Signed release files"
+            >
+              <p class="loading-line">Loading signed file list…</p>
+            </div>
+          </details>
+          <details class="fingerprint-details">
+            <summary>
+              Trusted signing key <span aria-hidden="true">+</span>
+            </summary>
+            <div class="fingerprint">
+              <span>Trusted public key fingerprint</span
+              ><code id="public-key-fingerprint">Checking trust root…</code
+              ><button
+                class="quiet-button"
+                id="copy-fingerprint"
+                type="button"
+                disabled
+              >
+                Copy fingerprint
+              </button>
+            </div>
+          </details>
+        </div>
+        <details class="activity-details">
+          <summary>
+            Installer activity &amp; privacy <span aria-hidden="true">+</span>
+          </summary>
+          <aside class="usage-ledger" aria-labelledby="usage-title">
+            <div class="usage-intro">
+              <h3 id="usage-title">From the installer</h3>
+              <p>
+                Real counts from anonymous install and update events. No names,
+                IP addresses, or project data are stored.
+              </p>
+              <small
+                >Opt out with <code>--no-telemetry</code> or
+                <code>VIBEPRO_TELEMETRY=0</code>.</small
+              >
+            </div>
+            <div class="live-stats" id="live-stats" aria-live="polite">
+              <div class="stats-loading">
+                <span></span><span></span><span></span>
+              </div>
+              <p>Fetching installer activity…</p>
+            </div>
+            <p class="stats-fallback" id="stats-fallback" hidden>
+              Installer activity is unavailable right now. Telemetry is
+              optional.<button
+                class="quiet-button"
+                id="retry-stats"
+                type="button"
+              >
+                Try again ↻
+              </button>
+            </p>
+          </aside>
+        </details>
+      </section>
+    </main>
+    <footer class="site-footer wrap">
+      <div>
+        <a class="wordmark" href="#top"
+          ><span class="mark" aria-hidden="true">V/</span>VibePro</a
+        >
+        <p>Security for what you build.</p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="#get-started">Install VibePro</a
+        ><a href="/report.html">Report viewer</a
+        ><a
+          href="https://github.com/cloudflare/security-audit-skill"
+          target="_blank"
+          rel="noreferrer"
+          >Audit methodology by Cloudflare ↗</a
+        >
+      </nav>
+      <div class="footer-bottom">
+        <span>© 2026 VibePro · MIT licensed</span
+        ><a href="#top">Back to top ↑</a>
+      </div>
+    </footer>
+    <p id="global-feedback" class="toast" role="status"></p>
+  </body>
+</html>

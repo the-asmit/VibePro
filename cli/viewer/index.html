@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0c0d0f" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link
+      rel="preload"
+      href="fonts/geist-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="fonts/jetbrains-mono-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <meta
+      name="description"
+      content="Review VibePro audit findings, evidence, and suggested fixes privately in your browser."
+    />
+    <title>Audit report | VibePro</title>
+    <link rel="stylesheet" href="report.css" />
+    <script src="report.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#findings-area">Skip to findings</a>
+    <header class="report-nav">
+      <a class="wordmark" href="/"><span>V/</span> VibePro</a>
+      <nav aria-label="Report navigation">
+        <a href="/">Back to website <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+    <main class="report-shell">
+      <div class="report-intro">
+        <div>
+          <p class="page-label">Report viewer</p>
+          <h1>Inspect the findings.</h1>
+          <p>
+            Source, evidence, and open questions. Everything you need to review
+            the audit.
+          </p>
+        </div>
+        <div class="privacy-note">
+          <span aria-hidden="true">↳</span>
+          <p>
+            Your report is parsed in this browser and is
+            <strong>never uploaded</strong>. Vulnerability details stay on your
+            device.
+          </p>
+        </div>
+      </div>
+      <section
+        class="report-loader"
+        id="drop-zone"
+        aria-labelledby="load-title"
+      >
+        <div class="load-description">
+          <span class="file-glyph" aria-hidden="true">{ }</span>
+          <div>
+            <h2 id="load-title">Open findings.json</h2>
+            <p>
+              Drop your file here, or choose it from your device. Up to 16 MB.
+            </p>
+          </div>
+        </div>
+        <div class="load-actions">
+          <label class="file-button" for="file-input"
+            >Choose file<input
+              type="file"
+              id="file-input"
+              accept="application/json,.json" /></label
+          ><button type="button" id="sample-button" class="text-button">
+            Explore a sample <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+      </section>
+      <p id="error" class="error-message" role="alert"></p>
+      <section id="report" hidden aria-labelledby="report-name">
+        <div class="report-identity">
+          <div>
+            <span class="sample-label" id="sample-label" hidden
+              >Sample / illustrative findings</span
+            >
+            <h2 id="report-name">findings.json</h2>
+            <p id="report-description">Audit findings loaded locally</p>
+          </div>
+          <button
+            class="text-button"
+            id="expand-all"
+            type="button"
+            aria-expanded="false"
+          >
+            Expand all findings <span aria-hidden="true">+</span>
+          </button>
+        </div>
+        <div class="report-overview">
+          <div class="summary" id="summary" aria-label="Verdict counts"></div>
+          <div class="severity-panel">
+            <h3>Confirmed severity</h3>
+            <div class="severity-bars" id="severity-bars"></div>
+          </div>
+        </div>
+        <div class="finding-head" id="findings-area">
+          <div class="finding-heading">
+            <h2>Review the candidates</h2>
+            <p id="result-count" role="status"></p>
+          </div>
+          <div class="filters">
+            <label class="search-label" for="finding-search"
+              ><span>Search findings</span
+              ><input
+                id="finding-search"
+                type="search"
+                placeholder="Title or source file" /></label
+            ><label for="verdict-filter"
+              ><span>Verdict</span
+              ><select id="verdict-filter">
+                <option value="all">All verdicts</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="needs_validation">Needs validation</option>
+                <option value="rejected">Rejected</option>
+              </select></label
+            ><label for="severity-filter"
+              ><span>Severity</span
+              ><select id="severity-filter">
+                <option value="all">All severities</option>
+                <option>critical</option>
+                <option>high</option>
+                <option>medium</option>
+                <option>low</option>
+                <option>informational</option>
+                <option value="unrated">Unrated</option>
+              </select></label
+            >
+          </div>
+        </div>
+        <div id="finding-list" class="finding-list"></div>
+      </section>
+      <div class="report-empty" id="report-empty">
+        <span aria-hidden="true">↳</span>
+        <div>
+          <h2>Start with a findings file.</h2>
+          <p>
+            Load a report to see confirmed findings, questions that need
+            validation, and candidates the audit rejected.
+          </p>
+          <code>npx vibepro-cli report</code>
+        </div>
+      </div>
+    </main>
+    <footer class="report-footer">
+      <span>VibePro</span>
+      <p>Reports are processed on your device.</p>
+      <a
+        href="https://github.com/cloudflare/security-audit-skill"
+        target="_blank"
+        rel="noreferrer"
+        >Methodology by Cloudflare ↗</a
+      >
+    </footer>
+  </body>
+</html>

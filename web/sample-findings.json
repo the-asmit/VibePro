@@ -1,0 +1,70 @@
+[
+  {
+    "verdict": "confirmed",
+    "fingerprint": "api.profile.authorization",
+    "title": "Authenticated users can read another user's profile",
+    "description": "The profile endpoint accepts an arbitrary account identifier and returns the matching record without checking ownership.",
+    "root_cause": "The handler trusts the path parameter as the caller's account identity.",
+    "intended_behavior": "A signed-in user should only read their own profile unless an explicit administrative role is present.",
+    "trace": [
+      { "kind": "entrypoint", "file": "src/routes/profile.js", "line": 18, "scope": "GET /api/profile/:userId", "description": "The request supplies the target user ID." },
+      { "kind": "sink", "file": "src/routes/profile.js", "line": 24, "scope": "profile query", "description": "The database query returns the profile without an ownership predicate." }
+    ],
+    "evidence": [
+      { "file": "src/routes/profile.js", "line": 24, "description": "The handler selects by req.params.userId and does not compare it with the authenticated principal." }
+    ],
+    "conditions": [
+      { "kind": "authentication_level", "description": "The caller has a valid account session." }
+    ],
+    "execution": {
+      "attacker_perspective": "A standard authenticated user changes the requested identifier.",
+      "payloads": ["GET /api/profile/another-user-id"],
+      "instructions": ["Sign in as a low-privilege user.", "Request the profile route with another known user ID."],
+      "observed_result": "The response contains the other user's profile fields."
+    },
+    "remediation": {
+      "strategy": "Derive the profile ID from the authenticated principal, or enforce an explicit owner-or-admin authorization check before querying.",
+      "code_changes": []
+    },
+    "severity": {
+      "likelihood": { "score": "high", "reason": "The identifier is directly controlled by any authenticated caller." },
+      "impact": { "score": "high", "reason": "Private profile data belonging to another user is disclosed." },
+      "overall_severity": "high"
+    },
+    "confidence": { "score": "high", "reason": "The route and query show the missing authorization check directly." }
+  },
+  {
+    "verdict": "needs_validation",
+    "fingerprint": "billing.webhook.signature",
+    "title": "Webhook signature enforcement depends on deployment configuration",
+    "description": "The visible handler has a signature verification branch, but the production secret binding is not represented in this repository.",
+    "claimed_root_cause": "The verification branch may be bypassed when the webhook secret is empty.",
+    "trace": [
+      { "kind": "entrypoint", "file": "src/routes/webhook.js", "line": 31, "scope": "POST /webhooks/payment", "description": "The route receives provider-controlled webhook payloads." },
+      { "kind": "sink", "file": "src/routes/webhook.js", "line": 42, "scope": "payment event dispatch", "description": "Verified events reach payment state updates." }
+    ],
+    "evidence": [
+      { "file": "src/routes/webhook.js", "line": 36, "description": "The verification helper reads PAYMENT_WEBHOOK_SECRET from the runtime environment." }
+    ],
+    "blockers": ["The deployed environment's PAYMENT_WEBHOOK_SECRET value and empty-secret behavior are not visible in source."],
+    "validation_plan": {
+      "local": "Run the handler with the secret unset and with an invalid signature; confirm both requests are rejected.",
+      "deployment": "Check the production secret binding without disclosing its value, then send a controlled invalid-signature fixture in staging."
+    }
+  },
+  {
+    "verdict": "rejected",
+    "fingerprint": "api.search.sql-injection",
+    "title": "Search query may permit SQL injection",
+    "description": "A first-pass review suspected the search term was interpolated into SQL.",
+    "claimed_root_cause": "The query builder might concatenate user input into the SQL string.",
+    "trace": [
+      { "kind": "entrypoint", "file": "src/routes/search.js", "line": 15, "scope": "GET /api/search", "description": "The caller supplies a search term." },
+      { "kind": "sink", "file": "src/routes/search.js", "line": 22, "scope": "parameterized query", "description": "The database driver binds the search term as a parameter." }
+    ],
+    "evidence": [
+      { "file": "src/routes/search.js", "line": 22, "description": "The query uses a placeholder and passes the term in the parameter array." }
+    ],
+    "reason": "The driver binds the search term as a value, so the suspected string-concatenation path is absent."
+  }
+]

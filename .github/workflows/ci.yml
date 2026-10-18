@@ -1,0 +1,94 @@
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install backend dependencies
+        run: python -m pip install -r backend/requirements-dev.txt
+      - name: Install npm workspace dependencies
+        run: npm ci --ignore-scripts
+      - name: Backend tests
+        run: python -m pytest backend/tests -q
+      - name: CLI tests and npm tarball install
+        working-directory: cli
+        run: npm test
+      - name: End-to-end install flow
+        if: runner.os == 'Windows'
+        run: ./scripts/e2e.ps1
+      - name: End-to-end install flow
+        if: runner.os != 'Windows'
+        run: sh scripts/e2e.sh
+      - name: Upstream validator tests (POSIX file flags)
+        if: runner.os == 'Linux'
+        run: node --test engine/1.0.0/validate-findings.test.cjs engine/1.0.0/validate-coverage-ledger.test.cjs
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: vibepro:ci
+      - name: Install key test dependency
+        run: python -m pip install cryptography
+      - name: Generate disposable container signing key
+        run: |
+          python - <<'PY'
+          import base64, os
+          from pathlib import Path
+          from cryptography.hazmat.primitives import serialization
+          from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+          private = Ed25519PrivateKey.generate()
+          private_pem = private.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption())
+          public_pem = private.public_key().public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
+              env.write('VIBEPRO_SIGNING_KEY=base64:' + base64.b64encode(private_pem).decode() + '\n')
+          Path(os.environ['RUNNER_TEMP'], 'vibepro-public.pem').write_bytes(public_pem)
+          PY
+      - name: Run container and check website, API, and signature
+        run: |
+          docker run --detach --name vibepro-ci -e VIBEPRO_SIGNING_KEY="$VIBEPRO_SIGNING_KEY" -p 10000:10000 vibepro:ci
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:10000/health >/dev/null; then break; fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1:10000/ | grep -q 'VibePro'
+          curl --fail --silent http://127.0.0.1:10000/report.html | grep -q 'never uploaded'
+          python - <<'PY'
+          import base64, json, urllib.request
+          from pathlib import Path
+          from cryptography.hazmat.primitives import serialization
+          request = urllib.request.urlopen('http://127.0.0.1:10000/api/v1/manifest/signed?version=latest')
+          envelope = json.load(request)
+          payload = json.dumps(envelope['manifest'], sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          public = serialization.load_pem_public_key(Path(__import__('os').environ['RUNNER_TEMP'], 'vibepro-public.pem').read_bytes())
+          public.verify(base64.b64decode(envelope['signature']), payload)
+          assert envelope['manifest']['name'] == 'vibepro-audit'
+          assert json.load(urllib.request.urlopen('http://127.0.0.1:10000/api/v1/stats'))['total_installs'] == 0
+          print('Container website, API, stats, and Ed25519 signature passed.')
+          PY
+      - name: Stop test container
+        if: always()
+        run: docker rm --force vibepro-ci || true

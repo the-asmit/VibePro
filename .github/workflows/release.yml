@@ -1,0 +1,78 @@
+name: Release CLI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'cli/**'
+      - '.github/workflows/release.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vibepro-cli-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Package verified CLI for GitHub Releases
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install CLI dependencies
+        run: npm ci --ignore-scripts
+      - name: Verify production API and signing key
+        run: |
+          node --input-type=module <<'JS'
+          import { DEFAULT_API_URL } from './cli/lib/config.js';
+          import { fetchVerifiedManifest } from './cli/lib/installer.js';
+          if (!DEFAULT_API_URL || new URL(DEFAULT_API_URL).protocol !== 'https:') {
+            throw new Error('Configure the deployed HTTPS API before releasing the CLI.');
+          }
+          const manifest = await fetchVerifiedManifest(DEFAULT_API_URL, 'latest');
+          if (!manifest.files.length) throw new Error('The signed release has no files.');
+          console.log(`Verified ${manifest.version}: ${manifest.files.length} signed files.`);
+          JS
+      - name: Pack CLI and create checksums
+        run: |
+          mkdir -p "$RUNNER_TEMP/vibepro-release"
+          npm pack --workspace vibepro-cli --ignore-scripts --pack-destination "$RUNNER_TEMP/vibepro-release"
+          cd "$RUNNER_TEMP/vibepro-release"
+          sha256sum vibepro-cli-*.tgz > SHA256SUMS.txt
+      - name: Publish a new GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('cli/package.json','utf8')).version")"
+          TAG="v$VERSION"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "Release $TAG already exists. Bump cli/package.json before publishing new bytes."
+            exit 1
+          fi
+          cat > "$RUNNER_TEMP/vibepro-release-notes.md" <<EOF
+          VibePro CLI $VERSION. The package verifies the signed audit engine before installation.
+
+          Run directly from this release:
+
+          \`\`\`sh
+          npx --package="https://github.com/$GH_REPO/releases/download/$TAG/vibepro-cli-$VERSION.tgz" vibepro install
+          \`\`\`
+
+          SHA-256 checksums are included in SHA256SUMS.txt. Node.js 18 or later is required.
+          EOF
+          gh release create "$TAG" \
+            "$RUNNER_TEMP/vibepro-release/vibepro-cli-$VERSION.tgz" \
+            "$RUNNER_TEMP/vibepro-release/SHA256SUMS.txt" \
+            --target "$GITHUB_SHA" \
+            --title "VibePro CLI $VERSION" \
+            --notes-file "$RUNNER_TEMP/vibepro-release-notes.md"

@@ -1,0 +1,20 @@
+{
+  "checks": [
+    "Live signed manifest and hero metadata",
+    "Custom security graphic animates, pauses, and replaces all video",
+    "Selecting independent review shows the rejected claim",
+    "A real engine file hashes to its signed digest in the browser",
+    "Live file list and fingerprint copy",
+    "Agent selection, preview option, and both command copy buttons",
+    "Phone audit controls and keyboard navigation",
+    "API failure states and retry recovery",
+    "A real empty stats state without invented activity",
+    "A tampered manifest is refused in the website",
+    "Reduced motion disables animations and preserves all content",
+    "Report verdict, severity, and source search filters",
+    "Local file loading, explicit sample labeling, expansion, and no uploads",
+    "Malformed and empty report states",
+    "The packaged CLI viewer loads its report and local fonts"
+  ],
+  "pageErrors": []
+}

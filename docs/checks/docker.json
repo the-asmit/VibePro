@@ -1,0 +1,9 @@
+{
+  "image": "vibepro:final-check",
+  "non_root": true,
+  "health": true,
+  "signed_files_verified": 22,
+  "sqlite_stats": true,
+  "browser_signature_and_hash": true,
+  "report_viewer": true
+}

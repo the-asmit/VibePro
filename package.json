@@ -1,0 +1,18 @@
+{
+  "name": "vibepro-project",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VibePro website, signed registry, and CLI development workspace",
+  "type": "module",
+  "workspaces": ["cli"],
+  "engines": { "node": ">=18", "npm": ">=8" },
+  "scripts": {
+    "postinstall": "node scripts/local.mjs setup",
+    "setup": "node scripts/local.mjs setup",
+    "start": "node scripts/local.mjs serve",
+    "dev": "node scripts/local.mjs serve",
+    "cli": "node scripts/local.mjs cli",
+    "report": "node scripts/local.mjs cli report web/sample-findings.json"
+  },
+  "license": "MIT"
+}
