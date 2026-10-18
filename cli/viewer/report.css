@@ -680,6 +680,7 @@ h1 {
   line-height: 1.8;
 }
 .report-empty code {
+  overflow-wrap: anywhere;
   display: block;
   font: 13px var(--mono);
   color: #d3d9e2;

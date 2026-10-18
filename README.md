@@ -2,7 +2,29 @@
 
 VibePro adds a structured security-review method to AI coding agents. It distributes a signed audit engine, verifies every downloaded file, and lets you review findings locally in your browser.
 
-**You can present the complete project locally. Deployment and npm publishing are not required.**
+**Website:** [vibepro-asmitnayan-8521.vercel.app](https://vibepro-asmitnayan-8521.vercel.app/) · **Source and releases:** [the-asmit/VibePro](https://github.com/the-asmit/VibePro)
+
+## Install and use VibePro
+
+With Node.js installed, run:
+
+```sh
+npx https://vibepro-asmitnayan-8521.vercel.app/cli.tgz install --agent codex
+```
+
+The command downloads the CLI from this project's GitHub Release. The CLI connects to the Vercel API, verifies the signed manifest and all engine files, and installs them for the selected coding agent. CLI users do not need Python, a project checkout, or a local backend.
+
+```sh
+npx https://vibepro-asmitnayan-8521.vercel.app/cli.tgz verify --agent codex
+npx https://vibepro-asmitnayan-8521.vercel.app/cli.tgz doctor
+npx https://vibepro-asmitnayan-8521.vercel.app/cli.tgz report ./findings.json
+```
+
+Supported agents: `codex`, `claude`, `cursor`, `antigravity`, and `gemini`. After installation, ask your coding agent to **audit this project**. The agent uses its normal model/account access to perform the review.
+
+The CLI is distributed through GitHub Releases. The short registry name `npx vibepro-cli` is available in the locally installed workspace; public use of that exact name would require a separate npm publication.
+
+The website and API run together on Vercel. Anonymous stats use a dedicated Neon Postgres database on its Free plan. No Render, Railway, or AWS account is required.
 
 ## Run it for your presentation
 
@@ -43,7 +65,7 @@ npx vibepro-cli doctor
 
 Choose `claude`, `cursor`, `antigravity`, or `gemini` instead of `codex` if needed. `--dry-run` previews the destination; `--project` installs in the current repository rather than the user's home directory.
 
-The website and copy buttons use `npx vibepro-cli`. After `npm install` in this checkout, npx resolves the local CLI workspace; it uses the local API on port 8011 when no API is configured. From a different machine without the checkout, that short command needs your CLI published to npm. A GitHub Release package is another distribution option; see [PUBLISH.md](PUBLISH.md#distribute-through-github-without-publishing-to-npm).
+On localhost, the website and copy buttons use `npx vibepro-cli`. After `npm install` in this checkout, npx resolves the local CLI workspace and uses the local API on port 8011 unless you explicitly override it. The public website uses the GitHub-backed command shown above.
 
 ### Show a report
 
@@ -101,7 +123,7 @@ about
 
 `report` accepts a file, a directory containing `findings.json`, or no path to find the newest run for the current project. `uninstall` and report viewing do not require a running backend.
 
-Use `--api <URL>` or `VIBEPRO_API` to select a different API. The local loopback default applies only to the source checkout; distributed packages use their configured production origin. `npm run cli -- <command>` remains available as a local convenience.
+Use `--api <URL>` or `VIBEPRO_API` to select a different API. The loopback default applies only to the source checkout; distributed packages use the configured production origin. `npm run cli -- <command>` remains available as a local convenience.
 
 To invoke the Node CLI directly instead of the wrapper:
 
@@ -123,6 +145,7 @@ On macOS/Linux, use `export VIBEPRO_API=http://127.0.0.1:8011` when invoking the
 | `npm run cli -- <command>` | Run the CLI against the local API |
 | `npm run report` | Open the included sample findings |
 | `npm run setup` | Repair or refresh backend dependencies |
+| `npm run release:prepare` | Restore production public trust roots from the ignored production-key backup before committing a release |
 
 The root package is private and is never published. The distributable `vibepro-cli` package stays separate and has no Python dependency or install lifecycle scripts; it connects to the deployed API.
 
@@ -172,15 +195,11 @@ node scripts/review-site.cjs
 
 GitHub Actions runs backend, CLI, package-tarball, and end-to-end checks on Windows, macOS, and Ubuntu. The upstream validator tests run on Ubuntu because they need POSIX file flags. A separate CI job builds and checks Docker. A local Docker build requires Docker Desktop's engine to be running.
 
-## Deploy later
+## Deployment and releases
 
-Keep using the local setup until after your presentation. Then:
+The deployment is configured for Vercel; see [DEPLOY.md](DEPLOY.md) for its project, environment, storage, and update procedures. [PUBLISH.md](PUBLISH.md) covers the GitHub release workflow and optional future npm publication.
 
-1. Follow [DEPLOY.md](DEPLOY.md) to create a separate production signing key and deploy the API plus website.
-2. Set the actual deployed HTTPS origin in `cli/lib/config.js`; the source checkout intentionally has no assumed public backend URL.
-3. Verify the deployed site and manifest, then follow [PUBLISH.md](PUBLISH.md) to publish the CLI if you want public `npx` installation.
-
-Vercel can host the FastAPI API and website, with deployment configuration and a persistent hosted database for stats; see [the Vercel notes](DEPLOY.md#can-this-run-on-vercel). The CLI can also be distributed as a GitHub Release tarball without npm publication; the exact short command `npx vibepro-cli` uses npm's registry outside this installed checkout.
+Local startup synchronizes DEV public keys into the website and CLI. Before committing production changes after local development, run `npm run release:prepare` using your existing ignored production-key backup. Keep the production private key secure and out of Git; never replace it without coordinating the API and client trust roots.
 
 ## License and credit
 

@@ -12,7 +12,8 @@
     "start": "node scripts/local.mjs serve",
     "dev": "node scripts/local.mjs serve",
     "cli": "node scripts/local.mjs cli",
-    "report": "node scripts/local.mjs cli report web/sample-findings.json"
+    "report": "node scripts/local.mjs cli report web/sample-findings.json",
+    "release:prepare": "node scripts/local.mjs prepare-release"
   },
   "license": "MIT"
 }

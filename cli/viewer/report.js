@@ -8,6 +8,9 @@ const state = { findings: [], expanded: false };
 const $ = (selector) => document.querySelector(selector);
 const fileInput = $("#file-input");
 const drop = $("#drop-zone");
+if (["localhost", "127.0.0.1", "[::1]"].includes(location.hostname) && !new URLSearchParams(location.search).has("local")) {
+  $("[data-report-command]").textContent = "npx vibepro-cli report";
+}
 
 function text(tag, className, value) {
   const node = document.createElement(tag);

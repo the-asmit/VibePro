@@ -1,6 +1,20 @@
 # Distribute the VibePro CLI
 
-Publishing is optional and is not needed for the presentation. Publish only after your own API is deployed, its public signing key matches the CLI and website, and its HTTPS origin is configured. See [DEPLOY.md](DEPLOY.md).
+The current distribution path uses GitHub Releases from **[the-asmit/VibePro](https://github.com/the-asmit/VibePro)** and the deployed Vercel API. npm publication is optional. See [DEPLOY.md](DEPLOY.md).
+
+## Current GitHub release workflow
+
+The public install command is:
+
+```sh
+npx https://vibepro-asmitnayan-8521.vercel.app/cli.tgz install --agent codex
+```
+
+`/cli.tgz` redirects to the versioned tarball on GitHub. The tarball embeds the production API URL and public signing key; it contains no Python backend, private key, database, or npm lifecycle hooks.
+
+`.github/workflows/release.yml` runs on relevant changes to `main`, or through a manual Actions run. It checks the CLI and viewer, verifies the production signed manifest, packages the CLI, and creates a GitHub Release containing the `.tgz` and `SHA256SUMS.txt`. It uses GitHub's token scoped to this repository; no personal token is stored.
+
+Before changing CLI bytes, bump the CLI version. The workflow refuses to overwrite an existing release. Restore production public trust roots with `npm run release:prepare` before committing if you used local DEV setup.
 
 ## Publish to npm for the short npx command
 
@@ -39,7 +53,7 @@ Confirm that you own the npm package name and the repository URL in `cli/package
    npx vibepro-cli@latest install --dry-run
    ```
 
-7. Create a GitHub release for the matching source/tag and monitor Render health and logs.
+7. Create a GitHub release for the matching source/tag and monitor the deployed API's health and logs.
 
 Do not publish a package with an unconfigured URL, a signing key that does not match `cli/lib/trusted-key.js`, or an API that has not passed the signed-manifest check. npm publishing is intentionally left to the package owner.
 

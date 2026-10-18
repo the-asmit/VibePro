@@ -30,6 +30,8 @@ jobs:
           node-version: '22'
       - name: Install CLI dependencies
         run: npm ci --ignore-scripts
+      - name: Check CLI and packaged viewer
+        run: npm test --workspace vibepro-cli
       - name: Verify production API and signing key
         run: |
           node --input-type=module <<'JS'

@@ -73,8 +73,7 @@ async function ensureSetup() {
   if (!existsSync(python) || !saved?.equals(await fs.readFile(requirement))) await setup();
 }
 
-async function localKey({ create = true } = {}) {
-  const directory = path.join(root, 'backend/keys');
+async function localKey({ create = true, directory = path.join(root, 'backend/keys') } = {}) {
   const privatePath = path.join(directory, 'private_key.pem');
   if (!existsSync(privatePath) && create) {
     await fs.mkdir(directory, { recursive: true });
@@ -90,7 +89,7 @@ async function localKey({ create = true } = {}) {
   const privateKey = crypto.createPrivateKey(privatePem);
   if (privateKey.asymmetricKeyType !== 'ed25519') throw new Error('The existing DEV key is not Ed25519; it has been left unchanged.');
   const publicPem = crypto.createPublicKey(privateKey).export({ type: 'spki', format: 'pem' }).toString();
-  return { privatePem, publicPem, keyId: fingerprintForKey(publicPem) };
+  return { privatePem, publicPem, keyId: fingerprintForKey(publicPem), directory };
 }
 
 async function syncPublicKey(key) {
@@ -104,7 +103,7 @@ async function syncPublicKey(key) {
   const updatedCli = '// Public trust root. The private signing key must never be committed.\n'
     + `export const TRUSTED_KEY_ID = '${key.keyId}';\n`
     + 'export const TRUSTED_PUBLIC_KEY_PEM = `' + key.publicPem + '`;\n';
-  for (const [file, value] of [[webPath, updatedWeb], [cliPath, updatedCli], [path.join(root, 'backend/keys/public_key.pem'), key.publicPem]]) {
+  for (const [file, value] of [[webPath, updatedWeb], [cliPath, updatedCli], [path.join(key.directory, 'public_key.pem'), key.publicPem]]) {
     if (await fs.readFile(file, 'utf8').catch(() => '') !== value) await fs.writeFile(file, value);
   }
 }
@@ -232,6 +231,17 @@ function options(args) {
 async function main() {
   const [command = 'serve', ...args] = process.argv.slice(2);
   if (command === 'setup') { await setup(); return 0; }
+  if (command === 'prepare-release') {
+    const directory = path.join(root, 'backend/keys/production');
+    if (!existsSync(path.join(directory, 'private_key.pem'))) {
+      throw new Error('Restore your production signing-key backup into backend/keys/production/ first. A new key would not match the deployed API.');
+    }
+    const key = await localKey({ create: false, directory });
+    await syncPublicKey(key);
+    console.log('Production public keys synchronized. Private key stays in ignored backend/keys/production/.');
+    console.log('Public fingerprint: ' + key.keyId);
+    return 0;
+  }
   const { port, open, forwarded } = options(args);
   if (command === 'serve') {
     if (forwarded.length) throw new Error('Unknown server options: ' + forwarded.join(' '));

@@ -1,79 +1,76 @@
-# Deploy VibePro later
+# VibePro deployment
 
-Deployment is optional for the presentation. First follow the local steps in [README.md](README.md).
+## Current setup
 
-## Can this run on Vercel?
-
-Yes. Vercel supports [FastAPI applications](https://vercel.com/docs/frameworks/backend/fastapi), so the website and API can share a Vercel deployment. The current checked-in deployment configuration targets Docker/Render; importing it into Vercel unchanged is not a complete setup.
-
-Before using Vercel:
-
-- Configure the Python entrypoint as `backend.app:app`, include the versioned `engine/` files and website assets, and install `backend/requirements.txt`. The npm postinstall script is for local development and should not create a DEV environment during a production build.
-- Replace the local SQLite statistics database with a persistent hosted database, such as Postgres, and install its SQLAlchemy driver. Set `DATABASE_URL` to that service's connection URL. [Vercel functions do not provide shared persistent storage for a local SQLite database](https://vercel.com/kb/guide/is-sqlite-supported-in-vercel).
-- Store the production `VIBEPRO_SIGNING_KEY` in Vercel environment variables and synchronize its public key into the website and CLI. Keep the website and `/api/` routes on the same origin.
-- Set the CLI's production API URL to the actual Vercel HTTPS origin, then distribute the CLI through npm or a GitHub Release as described in [PUBLISH.md](PUBLISH.md).
-
-These Vercel changes and a hosted database have not been configured or deployed here. The Render steps below use the existing Docker image and persistent SQLite disk.
-
-## Deploy with the existing Render configuration
-
-The service hosts the website and API together. The Render blueprint uses a paid Starter service with a persistent disk for SQLite. Render disks require a paid service; without a disk, filesystem changes disappear on redeploy/restart. Check the current [Render disk documentation](https://render.com/docs/disks) before choosing hosting.
-
-## 1. Prepare the repository
-
-Create your own GitHub repository, then commit and push this project. Confirm that `backend/keys/`, `.env*`, private PEM files, databases, logs, and `node_modules/` are excluded. The project has not been deployed or published by the local setup.
-
-## 2. Create a separate production key
-
-From the project root:
-
-```powershell
-python backend/scripts/generate_keys.py --output-dir backend/keys/production --sync-public-key --show-secret
-```
-
-This creates or reuses the key in that directory, updates both public trust roots, and prints the private deployment value. Copy only the `base64:...` value into Render's `VIBEPRO_SIGNING_KEY` secret field. Keep the private value out of source code, screenshots, commits, and chat. Keep a secure offline backup.
-
-Commit the changed **public** trust roots in `cli/lib/trusted-key.js` and `web/app.js`. The private key stays ignored. Use a new output directory for a future key rotation; the script never silently overwrites an existing private key.
-
-The local launcher deliberately restores the local DEV trust roots when run. After selecting a production key, repeat production synchronization before committing/releasing public artifacts.
-
-## 3. Create the Render service
-
-1. Choose **New → Blueprint** in Render and connect your GitHub repository.
-2. Review `render.yaml`: it creates the Docker service and a 1 GB disk mounted at `/var/data`.
-3. Set the `VIBEPRO_SIGNING_KEY` secret to the production `base64:...` value.
-4. Keep `CORS_ORIGINS` empty when the website and API use this same service. If hosting the website separately, set its exact origin(s).
-5. Deploy. Check `/health`, `/`, `/report.html`, `/api/v1/manifest/signed?version=latest`, and `/api/v1/stats`. The website must say **Signature verified**.
-
-Use the HTTPS origin Render actually assigns. The repository does not assume or reserve a public hostname. If choosing an ephemeral/free service instead, remove the disk from the blueprint and accept that anonymous statistics will reset on restarts; review the provider's current plan limits first.
-
-## 4. Configure and test the public CLI
-
-Set `DEFAULT_API_URL` in `cli/lib/config.js` to that real HTTPS origin. Confirm the public trust root matches the deployed signing key.
-
-```powershell
-npm test --prefix cli
-node cli/bin/vibepro.js install --agent codex --dry-run
-```
-
-Then follow [PUBLISH.md](PUBLISH.md). Public `npx vibepro-cli` installation becomes your distribution path only after the correct package has been published.
-
-## Environment variables
-
-| Name | Purpose |
+| Component | Location |
 | --- | --- |
-| `VIBEPRO_SIGNING_KEY` | Required private Ed25519 PEM, or `base64:<PEM>` |
-| `DATABASE_URL` | Blueprint uses `sqlite:////var/data/vibepro.db` |
-| `CORS_ORIGINS` | Empty for same-origin hosting; otherwise exact comma-separated website origins |
-| `VERSION` | `latest`, or a versioned engine folder |
-| `PORT` | Blueprint/container defaults to `10000` |
+| Public website and FastAPI API | https://vibepro-asmitnayan-8521.vercel.app |
+| Source and CLI releases | https://github.com/the-asmit/VibePro |
+| Vercel project | `asmitnayan-8521/vibepro` |
+| Vercel project ID | `prj_MkhEBUP9Rvj3A5pTJCWwvM2MxczA` |
+| Vercel workspace ID | `team_q8s81QD1Cw7t21iXjxDYT34B` |
+| Persistent stats database | Dedicated Neon resource `vibepro-stats`, Free plan |
+| API and database region | `iad1` |
+
+The website and API run in the same Vercel project. `/cli.tgz` redirects to the CLI tarball in this repository's GitHub Release. Users need only Node.js to run the installer; the Python backend runs on Vercel. No Render, Railway, or AWS account is required.
+
+Production is publicly accessible. Preview deployments remain protected by Vercel Authentication. Database credentials and the private signing key are stored in Vercel environment variables, not in GitHub.
+
+## Production environment
+
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL` | Pooled Postgres URL supplied by the dedicated Neon integration |
+| `VIBEPRO_SIGNING_KEY` | Secret `base64:<Ed25519 PEM>`; cannot be pulled back from Vercel |
+| `VERSION` | Optional; defaults to the latest versioned engine folder |
+| `CORS_ORIGINS` | Optional; same-origin website/API does not need an additional origin |
+
+The production public-key fingerprint is:
+
+```text
+e6c562d63acfdc00e93c0f06611229387a3d2caecfe5006c2802322667dcf2e3
+```
+
+Keep a secure backup of `backend/keys/production/private_key.pem`. The original local project has this ignored backup. It is not in the repository, the CLI package, or the deployment upload. Do not generate a replacement during routine deployment: changing the key requires coordinated API/client trust changes.
+
+`pyproject.toml` selects Python 3.12, declares the API dependencies, and points Vercel to `backend.app:app`. `vercel.json` selects FastAPI and places the function in `iad1`. Let Vercel install the Python dependencies; overriding its install command with `npm ci` alone would omit them. Local npm setup is skipped when running inside Vercel.
+
+The API uses the existing SQLAlchemy models with psycopg and Neon's pooled connection URL. First-start schema creation is serialized with a Postgres advisory lock. Local development continues to use SQLite.
+
+## Update this deployment
+
+1. Make and review changes in this repository.
+2. If you ran the local server, restore the production public trust roots before committing:
+
+   ```sh
+   npm run release:prepare
+   ```
+
+   This requires the existing ignored production-key backup. It updates public keys only and never prints the private value.
+
+3. Commit and push to **`the-asmit/VibePro` only**. For CLI changes, bump `cli/package.json` before publishing new package bytes; existing GitHub Release versions are not overwritten.
+4. To deploy from the CLI, link explicitly to this project if the checkout is not already linked:
+
+   ```sh
+   npx vercel@64.5.0 link --yes --project vibepro --scope team_q8s81QD1Cw7t21iXjxDYT34B
+   npx vercel@64.5.0 project inspect --non-interactive
+   npx vercel@64.5.0 deploy --prod --scope team_q8s81QD1Cw7t21iXjxDYT34B
+   ```
+
+   Confirm the inspection shows project ID `prj_MkhEBUP9Rvj3A5pTJCWwvM2MxczA` before deploying. No other project needs to be changed.
+
+5. Check `/health`, `/api/v1/manifest/signed?version=latest`, `/api/v1/stats`, `/`, and `/report.html?sample=1`. The website must show **Signature verified**, and its real-file hash check must pass.
+
+The CLI release workflow checks the production manifest and the packaged viewer before uploading a tarball and SHA-256 checksums to GitHub Releases. See [PUBLISH.md](PUBLISH.md).
 
 ## Future engine releases
 
-```powershell
+```sh
 python backend/scripts/release.py 1.1.0
 ```
 
-Review and commit the new `engine/1.1.0/` snapshot, then deploy. Keep existing released folders so old versioned file URLs continue to work.
+Review and commit the new `engine/1.1.0/` snapshot, then deploy. Keep existing versioned release folders so earlier file URLs continue to work.
 
-The Docker image runs as a non-root user. HTTPS terminates at the host proxy; local development binds only to `127.0.0.1`.
+## Optional Docker hosting
+
+The Dockerfile and Render blueprint remain available as an alternative deployment route. They are not used by the Vercel deployment. Docker runs as a non-root user; a writable persistent disk is required if using SQLite. Configure the same production signing key and matching public trust roots on any alternative host.

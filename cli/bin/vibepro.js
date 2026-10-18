@@ -2,7 +2,6 @@
 import { AGENTS, CREDIT, getApiBase, install, listInstallations, uninstall } from '../lib/installer.js';
 import { formatReport, openLocalReport, resolveFindingsPath, validateFindingsFile } from '../lib/report.js';
 import { doctor, verifyInstalled } from '../lib/verify.js';
-import { DEFAULT_API_URL } from '../lib/config.js';
 import { existsSync, readFileSync } from 'node:fs';
 
 const VERSION = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
@@ -14,7 +13,7 @@ const say = s => process.stdout.write(s + '\n');
 
 function commandApi(options) {
   if (options.api) return getApiBase({ VIBEPRO_API: options.api });
-  if (process.env.VIBEPRO_API || DEFAULT_API_URL) return getApiBase();
+  if (process.env.VIBEPRO_API) return getApiBase();
   // The local npm workspace links this executable to the source checkout.
   // Published packages never infer a loopback API from the user's directory.
   let sourceCheckout = false;
