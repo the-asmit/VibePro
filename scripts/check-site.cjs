@@ -66,22 +66,17 @@ async function main() {
     const firstFrame = await core.getAttribute("data-frame");
     await page.waitForFunction(
       (before) =>
-        document.querySelector("#security-core").dataset.frame !== before ||
-        document.querySelector("#security-core").dataset.motion === "settled",
+        document.querySelector("#security-core").dataset.frame !== before,
       firstFrame,
     );
-    await page.waitForFunction(
-      () => document.querySelector("#security-core").dataset.motion === "settled",
-      null,
-      { timeout: 7000 },
-    );
     assert.equal(await page.locator("#motion-toggle").count(), 0);
-    const settledFrame = await core.getAttribute("data-frame");
-    await page.waitForTimeout(150);
-    assert.equal(await core.getAttribute("data-frame"), settledFrame);
+    const runningFrame = await core.getAttribute("data-frame");
+    await page.waitForTimeout(5000);
+    assert.equal(await core.getAttribute("data-motion"), "playing");
+    assert.notEqual(await core.getAttribute("data-frame"), runningFrame);
     assert.equal(await page.locator("video").count(), 0);
     assert.equal(await page.getByText(/Asmit|Arnav/).count(), 0);
-    passed("Custom security graphic animates briefly and settles without a control overlay");
+    passed("Custom security graphic keeps animating without a control overlay");
     await page.locator('.story-chapter[data-stage="4"] button').click();
     assert.match(
       await page.locator("#evidence-verdict").textContent(),

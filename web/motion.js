@@ -55,9 +55,6 @@
   let frame = 0;
   let lastTime = 0;
   let time = 0.15;
-  // A short intro settles automatically without needing playback controls.
-  const introDuration = 4.5;
-  let elapsed = 0;
   let width = 1,
     height = 1,
     scale = 1;
@@ -71,10 +68,8 @@
     cancelAnimationFrame(frame);
     frame = 0;
     lastTime = 0;
-    canvas.dataset.motion = paused
-      ? "paused"
-      : elapsed >= introDuration ? "settled" : "playing";
-    if (!paused && elapsed < introDuration && visible && !document.hidden && context)
+    canvas.dataset.motion = paused ? "paused" : "playing";
+    if (!paused && visible && !document.hidden && context)
       frame = requestAnimationFrame(animate);
     else if (context) draw();
   }
@@ -109,22 +104,12 @@
       const bounds = stage.getBoundingClientRect();
       pointerX = ((event.clientX - bounds.left) / width - 0.5) * 2;
       pointerY = ((event.clientY - bounds.top) / height - 0.5) * 2;
-      if (elapsed >= introDuration) {
-        leanX = pointerX;
-        leanY = pointerY;
-        draw();
-      }
     },
     { passive: true },
   );
   stage.addEventListener("pointerleave", () => {
     pointerX = 0;
     pointerY = 0;
-    if (!paused && context && elapsed >= introDuration) {
-      leanX = 0;
-      leanY = 0;
-      draw();
-    }
   });
 
   function project(x, y, z) {
@@ -374,18 +359,11 @@
     if (paused || !visible || document.hidden) return;
     if (!lastTime || timestamp - lastTime >= (phone.matches ? 30 : 15)) {
       const delta = lastTime ? (timestamp - lastTime) / 1000 : 0.016;
-      elapsed = Math.min(introDuration, elapsed + delta);
       time += Math.min(delta, 0.08);
       lastTime = timestamp;
       leanX += (pointerX - leanX) * 0.065;
       leanY += (pointerY - leanY) * 0.065;
       draw();
-    }
-    if (elapsed >= introDuration) {
-      canvas.dataset.motion = "settled";
-      frame = 0;
-      lastTime = 0;
-      return;
     }
     frame = requestAnimationFrame(animate);
   }
