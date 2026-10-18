@@ -1,6 +1,6 @@
 # Final project check
 
-Checked on 18 October 2026. The local presentation workflow works without deploying or publishing the CLI.
+Checked on 18 October 2026. Both the local presentation workflow and the public Vercel/GitHub Release installation work. See [deployment evidence](DEPLOYMENT.md) for production details.
 
 ## Results
 
@@ -21,6 +21,11 @@ Checked on 18 October 2026. The local presentation workflow works without deploy
 | Website/CLI report parity and local HTML assets | Passed |
 | npm package contents | 21 whitelisted files; no private key, database, old fonts, or project screenshots |
 | Docker image and fresh container | Passed: non-root runtime, two-worker startup, 22 signed file hashes, SQLite stats, browser verification, and report viewer |
+| Hosted GitHub Actions | Backend, CLI and end-to-end checks passed on Windows, macOS, and Ubuntu; Docker job passed |
+| Public GitHub Release | `v1.0.0` published with CLI tarball and SHA-256 checksums |
+| Public installation | GitHub-hosted tarball installed in an isolated home; 22 files intact; verify and doctor passed |
+| Vercel production | Public website, sample report, signed manifest, all 22 file hashes, and persistent Neon stats passed |
+| Production browser review | 1440, 1024, 768, and 390px: no horizontal overflow or page errors; real signature/hash check and sample findings passed |
 
 ## Cleanup and fixes
 
@@ -29,7 +34,7 @@ Checked on 18 October 2026. The local presentation workflow works without deploy
 - Kept the final screenshots, tests, lockfiles, source engine, and versioned engine release. The source/release and website/CLI viewer copies serve distinct runtime or distribution purposes.
 - Added a private npm workspace: `npm install` prepares CLI/backend dependencies, `npm start` starts/reuses the local API, and `npm run cli -- <command>` runs the CLI. The Node launcher in `scripts/local.mjs` replaces the Python wrapper.
 - Made key creation repeatable, synchronized public keys automatically for local use, and stopped printing private values unless explicitly requested for deployment.
-- Removed the assumed public API URL. Local commands use the wrapper; a public URL must be configured before publication.
+- Local source-checkout commands use the local API. Published packages now contain the verified production API origin and matching public key.
 - Added request timeouts, offline uninstall, missing-agent validation, and regression checks for key reuse and bundled viewer parity.
 - Fixed SQLite table creation when multiple server workers start together; verified a fresh database with concurrent workers and in Docker.
 - Kept completed installs intact when removing an old backup fails, with a regression check for that case.
@@ -38,7 +43,7 @@ Checked on 18 October 2026. The local presentation workflow works without deploy
 
 ## Limits
 
-Windows application checks, Linux upstream checks, and a local Docker build/container run passed. Hosted GitHub Actions, macOS CI, deployment, and public npm publishing have not been run here. The temporary VibePro containers were stopped after validation; the presentation server on port 8011 remains running.
+Hosted CI passed on Windows, macOS, and Ubuntu, including the Docker job. Production deployment and the public GitHub Release installer were verified. The CLI has not been published to the npm registry; its GitHub tarball works directly with npx. The temporary VibePro containers were stopped after validation; the presentation server on port 8011 remains running.
 
 An actual code audit is performed by the selected AI coding agent using its usual account/model access. The included sample findings demonstrate the viewer and are explicitly labeled as a sample.
 
@@ -48,5 +53,6 @@ An actual code audit is performed by the selected AI coding agent using its usua
 - [Docker checks](checks/docker.json)
 - [Responsive screenshots and accessibility results](screenshots/product/README.md)
 - [Local presentation instructions](../README.md)
-- [Deployment later](../DEPLOY.md)
-- [Publishing later](../PUBLISH.md)
+- [Production deployment evidence](DEPLOYMENT.md)
+- [Deployment and updates](../DEPLOY.md)
+- [CLI distribution](../PUBLISH.md)

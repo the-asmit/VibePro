@@ -4,7 +4,7 @@
 
 | Component | Location |
 | --- | --- |
-| Public website and FastAPI API | https://vibepro-asmitnayan-8521.vercel.app |
+| Public website and FastAPI API | https://vibepro-eight.vercel.app |
 | Source and CLI releases | https://github.com/the-asmit/VibePro |
 | Vercel project | `asmitnayan-8521/vibepro` |
 | Vercel project ID | `prj_MkhEBUP9Rvj3A5pTJCWwvM2MxczA` |
@@ -15,6 +15,8 @@
 The website and API run in the same Vercel project. `/cli.tgz` redirects to the CLI tarball in this repository's GitHub Release. Users need only Node.js to run the installer; the Python backend runs on Vercel. No Render, Railway, or AWS account is required.
 
 Production is publicly accessible. Preview deployments remain protected by Vercel Authentication. Database credentials and the private signing key are stored in Vercel environment variables, not in GitHub.
+
+Vercel is connected to GitHub repository ID `1424541688` (`the-asmit/VibePro`), with `main` as the production branch. Pushing to `main` starts a production deployment automatically. The database and signing secret are configured for Production; a preview needs its own environment configuration before its API can run.
 
 ## Production environment
 
@@ -49,7 +51,7 @@ The API uses the existing SQLAlchemy models with psycopg and Neon's pooled conne
    This requires the existing ignored production-key backup. It updates public keys only and never prints the private value.
 
 3. Commit and push to **`the-asmit/VibePro` only**. For CLI changes, bump `cli/package.json` before publishing new package bytes; existing GitHub Release versions are not overwritten.
-4. To deploy from the CLI, link explicitly to this project if the checkout is not already linked:
+4. Monitor the automatic deployment in the Vercel project dashboard. For a manual deployment, link explicitly to this project if the checkout is not already linked:
 
    ```sh
    npx vercel@64.5.0 link --yes --project vibepro --scope team_q8s81QD1Cw7t21iXjxDYT34B
