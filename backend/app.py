@@ -17,16 +17,16 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
-from sqlalchemy import DateTime, Integer, String, create_engine, func, select
+from sqlalchemy import DateTime, Integer, String, create_engine, func, select, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import NullPool, StaticPool
 from sqlalchemy.schema import CreateIndex, CreateTable
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -179,12 +179,20 @@ def build_manifest(engine_dir: Path, version: str) -> tuple[Manifest, dict[str, 
 
 
 def _database(url: str):
+    if url.startswith("postgres://"):
+        url = "postgresql+psycopg://" + url[len("postgres://"):]
+    elif url.startswith("postgresql://"):
+        url = "postgresql+psycopg://" + url[len("postgresql://"):]
     kwargs = {"connect_args": {"check_same_thread": False}} if url.startswith("sqlite") else {}
     if url in {"sqlite://", "sqlite:///:memory:"}:
         kwargs["poolclass"] = StaticPool
     if url.startswith("sqlite:////"):
         db_path = Path(url[10:])
         db_path.parent.mkdir(parents=True, exist_ok=True)
+    if url.startswith("postgresql"):
+        # Neon handles pooling. Avoid keeping idle client connections alive
+        # across serverless instance freezes and database scale-to-zero.
+        kwargs.update(poolclass=NullPool, connect_args={"connect_timeout": 15})
     engine = create_engine(url, future=True, **kwargs)
     if url.startswith("sqlite"):
         # Gunicorn workers can initialize a new database concurrently. Keep the
@@ -194,6 +202,11 @@ def _database(url: str):
                 connection.execute(CreateTable(table, if_not_exists=True))
                 for index in table.indexes:
                     connection.execute(CreateIndex(index, if_not_exists=True))
+    elif engine.dialect.name == "postgresql":
+        with engine.begin() as connection:
+            # Serialize first-start schema initialization across instances.
+            connection.execute(text("SELECT pg_advisory_xact_lock(739051246)"))
+            Base.metadata.create_all(connection)
     else:
         Base.metadata.create_all(engine)
     return engine
@@ -272,6 +285,16 @@ def create_app(engine_dir: Path | None = None, version: str | None = None, web_d
     @limiter.limit("120/minute")
     async def health(request: Request) -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.get("/cli.tgz", include_in_schema=False)
+    @limiter.limit("120/minute")
+    async def cli_package(request: Request):
+        package = json.loads((ROOT / "cli/package.json").read_text(encoding="utf-8"))
+        cli_version = package["version"]
+        if not VERSION_PATTERN.fullmatch(cli_version):
+            raise HTTPException(status_code=503, detail="CLI release is not configured")
+        url = f"https://github.com/the-asmit/VibePro/releases/download/v{cli_version}/vibepro-cli-{cli_version}.tgz"
+        return RedirectResponse(url, status_code=307, headers={"Cache-Control": "no-cache"})
 
     @app.get("/api/v1/manifest", response_model=Manifest)
     @limiter.limit("120/minute")

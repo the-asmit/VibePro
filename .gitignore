@@ -17,3 +17,8 @@ backend/keys/
 dist/
 artifacts/
 *.tgz
+/.agents/
+/skills-lock.json
+
+.vercel
+.env*

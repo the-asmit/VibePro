@@ -1,5 +1,5 @@
 const publicKeyPem =
-  "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAIshuo9iCh99qgFTnc6nsEJnBbany1UUmmNGWjN0BiJ8=\n-----END PUBLIC KEY-----\n";
+  "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA89eYqSksJnd9qta/MoyXjVqebeI+aaD5zywvdXXCmTw=\n-----END PUBLIC KEY-----\n";
 const $ = (selector) => document.querySelector(selector);
 const localDemo = ["localhost", "127.0.0.1", "[::1]"].includes(
   location.hostname,
@@ -8,7 +8,8 @@ const localApi =
   localDemo && location.port && location.port !== "8011"
     ? " --api " + location.origin
     : "";
-const command = "npx vibepro-cli install" + localApi;
+const installer = localDemo ? "npx vibepro-cli" : "npx " + location.origin + "/cli.tgz";
+const command = installer + " install" + localApi;
 $(".hero-command code").textContent = command;
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 let manifest;

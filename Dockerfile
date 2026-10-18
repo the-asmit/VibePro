@@ -7,6 +7,7 @@ RUN pip install --no-cache-dir -r /app/backend/requirements.txt \
 COPY backend /app/backend
 COPY engine /app/engine
 COPY web /app/web
+COPY cli/package.json /app/cli/package.json
 RUN mkdir -p /var/data && chown -R vibepro:vibepro /app /var/data
 USER vibepro
 WORKDIR /app/backend

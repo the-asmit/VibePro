@@ -314,6 +314,7 @@ pre {
   gap: 24px;
   align-items: center;
   width: max-content;
+  max-width: 100%;
   border: 1px solid #353739;
   background: #13161a;
   border-radius: 8px;
@@ -321,10 +322,13 @@ pre {
   max-width: 100%;
 }
 .hero-command code {
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-size: 13px;
   color: #d3d5d9;
 }
 .hero-command button {
+  flex-shrink: 0;
   border: 0;
   background: #2a2c2f;
   padding: 5px 11px;

@@ -1,6 +1,8 @@
-.git/
+.git
 .venv/
 .vercel/
+.agents/
+skills-lock.json
 **/node_modules/
 **/__pycache__/
 **/.pytest_cache/
