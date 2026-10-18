@@ -4,8 +4,8 @@ Verified on 18 October 2026.
 
 ## Live project
 
-- [Website](https://vibepro-eight.vercel.app/)
-- [Sample report](https://vibepro-eight.vercel.app/report.html?sample=1)
+- [Website](https://vibepro-audit.vercel.app/)
+- [Sample report](https://vibepro-audit.vercel.app/report.html?sample=1)
 - [Source repository](https://github.com/the-asmit/VibePro)
 - [CLI v1.0.0 release](https://github.com/the-asmit/VibePro/releases/tag/v1.0.0)
 - Vercel project: `asmitnayan-8521/vibepro`, ID `prj_MkhEBUP9Rvj3A5pTJCWwvM2MxczA`.
@@ -15,10 +15,12 @@ Only the newly created `the-asmit/VibePro` repository was written to. The Vercel
 
 Vercel confirms its Git connection targets repository ID `1424541688`, owner `the-asmit`, repository `VibePro`, production branch `main`.
 
+The public address was changed to `vibepro-audit.vercel.app` on 18 October 2026. The old generated address redirects to it with HTTP 308. Existing screenshot measurements retain their original capture URLs as historical evidence.
+
 ## Public installer
 
 ```sh
-npx https://vibepro-eight.vercel.app/cli.tgz install --agent codex
+npx https://vibepro-audit.vercel.app/cli.tgz install --agent codex
 ```
 
 The redirect resolves to the GitHub Release tarball. An actual public-package installation was run in an isolated home without overriding the API URL. Installation, `verify`, and `doctor` passed, with 22 intact engine files. The user's existing Codex installation was not replaced by this check.

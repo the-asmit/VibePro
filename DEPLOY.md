@@ -4,7 +4,7 @@
 
 | Component | Location |
 | --- | --- |
-| Public website and FastAPI API | https://vibepro-eight.vercel.app |
+| Public website and FastAPI API | https://vibepro-audit.vercel.app |
 | Source and CLI releases | https://github.com/the-asmit/VibePro |
 | Vercel project | `asmitnayan-8521/vibepro` |
 | Vercel project ID | `prj_MkhEBUP9Rvj3A5pTJCWwvM2MxczA` |
@@ -13,6 +13,8 @@
 | API and database region | `iad1` |
 
 The website and API run in the same Vercel project. `/cli.tgz` redirects to the CLI tarball in this repository's GitHub Release. Users need only Node.js to run the installer; the Python backend runs on Vercel. No Render, Railway, or AWS account is required.
+
+`vibepro-audit.vercel.app` is assigned to this project's Production environment and follows future deployments. The previous generated address, `vibepro-eight.vercel.app`, permanently redirects to it with HTTP 308, preserving paths and query strings. The packaged CLI's additional API alias remains available for existing installations.
 
 Production is publicly accessible. Preview deployments remain protected by Vercel Authentication. Database credentials and the private signing key are stored in Vercel environment variables, not in GitHub.
 

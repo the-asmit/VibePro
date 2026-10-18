@@ -2,22 +2,22 @@
 
 VibePro adds a structured security-review method to AI coding agents. It distributes a signed audit engine, verifies every downloaded file, and lets you review findings locally in your browser.
 
-**Website:** [vibepro-eight.vercel.app](https://vibepro-eight.vercel.app/) · **Source and releases:** [the-asmit/VibePro](https://github.com/the-asmit/VibePro)
+**Website:** [vibepro-audit.vercel.app](https://vibepro-audit.vercel.app/) · **Source and releases:** [the-asmit/VibePro](https://github.com/the-asmit/VibePro)
 
 ## Install and use VibePro
 
 With Node.js installed, run:
 
 ```sh
-npx https://vibepro-eight.vercel.app/cli.tgz install --agent codex
+npx https://vibepro-audit.vercel.app/cli.tgz install --agent codex
 ```
 
 The command downloads the CLI from this project's GitHub Release. The CLI connects to the Vercel API, verifies the signed manifest and all engine files, and installs them for the selected coding agent. CLI users do not need Python, a project checkout, or a local backend.
 
 ```sh
-npx https://vibepro-eight.vercel.app/cli.tgz verify --agent codex
-npx https://vibepro-eight.vercel.app/cli.tgz doctor
-npx https://vibepro-eight.vercel.app/cli.tgz report ./findings.json
+npx https://vibepro-audit.vercel.app/cli.tgz verify --agent codex
+npx https://vibepro-audit.vercel.app/cli.tgz doctor
+npx https://vibepro-audit.vercel.app/cli.tgz report ./findings.json
 ```
 
 Supported agents: `codex`, `claude`, `cursor`, `antigravity`, and `gemini`. After installation, ask your coding agent to **audit this project**. The agent uses its normal model/account access to perform the review.
@@ -108,7 +108,7 @@ flowchart LR
 
 ## CLI commands
 
-Use `npx vibepro-cli <command>` from the installed source checkout. For public use, replace `npx vibepro-cli` with `npx https://vibepro-eight.vercel.app/cli.tgz`:
+Use `npx vibepro-cli <command>` from the installed source checkout. For public use, replace `npx vibepro-cli` with `npx https://vibepro-audit.vercel.app/cli.tgz`:
 
 ```text
 install --agent <name> [--project] [--dry-run] [--no-telemetry]

@@ -7,7 +7,7 @@ The current distribution path uses GitHub Releases from **[the-asmit/VibePro](ht
 The public install command is:
 
 ```sh
-npx https://vibepro-eight.vercel.app/cli.tgz install --agent codex
+npx https://vibepro-audit.vercel.app/cli.tgz install --agent codex
 ```
 
 `/cli.tgz` redirects to the versioned tarball on GitHub. The tarball embeds the production API URL and public signing key; it contains no Python backend, private key, database, or npm lifecycle hooks.

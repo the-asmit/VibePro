@@ -1,6 +1,6 @@
 # Production browser review
 
-Captured from [the public deployment](https://vibepro-eight.vercel.app/) on 18 October 2026 using Playwright and Chromium. Reduced motion was enabled for repeatable captures. Both pages were checked for horizontal overflow and JavaScript page errors at each width; none were found.
+Captured from the public deployment on 18 October 2026 using Playwright and Chromium, before its address changed to [vibepro-audit.vercel.app](https://vibepro-audit.vercel.app/). Measurements retain the original capture URL, which now redirects to the new address. Reduced motion was enabled for repeatable captures. Both pages were checked for horizontal overflow and JavaScript page errors at each width; none were found.
 
 | Width | Website | Sample report |
 | --- | --- | --- |
