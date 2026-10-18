@@ -232,12 +232,6 @@
   .core-stage {
     height: 580px;
   }
-  .core-stage #motion-toggle {
-    font-size: 10px;
-    top: 22px;
-    right: 10px;
-    padding: 7px 10px;
-  }
   .core-callout {
     left: 15px;
     bottom: 90px;
@@ -575,11 +569,6 @@
   }
   .core-stage {
     height: 415px;
-  }
-  .core-stage #motion-toggle {
-    top: 10px;
-    right: 15px;
-    font-size: 10px;
   }
   .core-callout {
     left: 28px;
@@ -1086,9 +1075,6 @@
   }
   .trace-map > span {
     padding: 4px 5px;
-  }
-  .core-stage #motion-toggle {
-    font-size: 11px;
   }
   .core-caption {
     font-size: 11px;

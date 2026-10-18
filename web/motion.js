@@ -50,12 +50,14 @@
   const canvas = document.querySelector("#security-core");
   const stage = canvas.closest(".core-stage");
   const context = canvas.getContext("2d", { alpha: true });
-  const motionButton = document.querySelector("#motion-toggle");
   let paused = preference.matches;
   let visible = false;
   let frame = 0;
   let lastTime = 0;
   let time = 0.15;
+  // A short intro settles automatically without needing playback controls.
+  const introDuration = 4.5;
+  let elapsed = 0;
   let width = 1,
     height = 1,
     scale = 1;
@@ -66,22 +68,16 @@
 
   function updateMotion() {
     document.body.classList.toggle("motion-paused", paused);
-    motionButton.setAttribute("aria-pressed", String(paused));
-    motionButton.textContent = paused
-      ? "Play animation ↗"
-      : "Pause animation Ⅱ";
     cancelAnimationFrame(frame);
     frame = 0;
     lastTime = 0;
-    canvas.dataset.motion = paused ? "paused" : "playing";
-    if (!paused && visible && !document.hidden && context)
+    canvas.dataset.motion = paused
+      ? "paused"
+      : elapsed >= introDuration ? "settled" : "playing";
+    if (!paused && elapsed < introDuration && visible && !document.hidden && context)
       frame = requestAnimationFrame(animate);
     else if (context) draw();
   }
-  motionButton.addEventListener("click", () => {
-    paused = !paused;
-    updateMotion();
-  });
   preference.addEventListener("change", () => {
     paused = preference.matches;
     updateMotion();
@@ -109,16 +105,26 @@
   stage.addEventListener(
     "pointermove",
     (event) => {
-      if (paused || event.pointerType === "touch") return;
+      if (paused || !context || event.pointerType === "touch") return;
       const bounds = stage.getBoundingClientRect();
       pointerX = ((event.clientX - bounds.left) / width - 0.5) * 2;
       pointerY = ((event.clientY - bounds.top) / height - 0.5) * 2;
+      if (elapsed >= introDuration) {
+        leanX = pointerX;
+        leanY = pointerY;
+        draw();
+      }
     },
     { passive: true },
   );
   stage.addEventListener("pointerleave", () => {
     pointerX = 0;
     pointerY = 0;
+    if (!paused && context && elapsed >= introDuration) {
+      leanX = 0;
+      leanY = 0;
+      draw();
+    }
   });
 
   function project(x, y, z) {
@@ -367,17 +373,25 @@
   function animate(timestamp) {
     if (paused || !visible || document.hidden) return;
     if (!lastTime || timestamp - lastTime >= (phone.matches ? 30 : 15)) {
-      time += lastTime ? Math.min((timestamp - lastTime) / 1000, 0.08) : 0.016;
+      const delta = lastTime ? (timestamp - lastTime) / 1000 : 0.016;
+      elapsed = Math.min(introDuration, elapsed + delta);
+      time += Math.min(delta, 0.08);
       lastTime = timestamp;
       leanX += (pointerX - leanX) * 0.065;
       leanY += (pointerY - leanY) * 0.065;
       draw();
+    }
+    if (elapsed >= introDuration) {
+      canvas.dataset.motion = "settled";
+      frame = 0;
+      lastTime = 0;
+      return;
     }
     frame = requestAnimationFrame(animate);
   }
   if (context) {
     new ResizeObserver(resize).observe(stage);
     resize();
-  } else motionButton.hidden = true;
+  }
   updateMotion();
 })();

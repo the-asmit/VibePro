@@ -370,20 +370,6 @@ pre {
   height: 100%;
   touch-action: pan-y;
 }
-.core-stage #motion-toggle {
-  position: absolute;
-  right: 0;
-  top: 38px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  border: 1px solid #36393e;
-  background: #131416d9;
-  padding: 8px 12px;
-  border-radius: 100px;
-  color: #b9bcc1;
-  font-size: 11px;
-}
 .core-callout {
   position: absolute;
   left: 28px;
@@ -692,7 +678,7 @@ pre {
   top: 0;
   left: 0;
   background: var(--accent);
-  animation: trace-packet 2.8s linear infinite;
+  animation: trace-packet 2.8s linear 1;
 }
 .trace-map i:last-of-type:after {
   animation-delay: -1.4s;
@@ -1054,7 +1040,7 @@ pre {
   inset: 6px;
   border: 1px dashed #7782923e;
   border-radius: 50%;
-  animation: verification-orbit 20s linear infinite;
+  animation: verification-orbit 4.5s linear 1;
 }
 .verify-heading h2 {
   font-size: 30px;
